@@ -261,7 +261,7 @@ const RBM={bl:'l',br:'r',bj:'j'};
 function hT(e){if(e.cancelable)e.preventDefault();['l','r','j'].forEach(k=>K[k]=0);['bl','br','bj'].forEach(id=>$(id).classList.remove('on'));for(let i=0;i<e.touches.length;i++){const el=document.elementFromPoint(e.touches[i].clientX,e.touches[i].clientY);if(el&&RBM[el.id]){K[RBM[el.id]]=1;el.classList.add('on');}}}
 ['touchstart','touchmove','touchend','touchcancel'].forEach(ev=>$('tc').addEventListener(ev,hT,{passive:false}));
 [['bl','l'],['br','r'],['bj','j']].forEach(([id,m])=>{const b=$(id);b.addEventListener('mousedown',e=>{e.preventDefault();K[m]=1;b.classList.add('on')});['mouseup','mouseleave'].forEach(ev=>b.addEventListener(ev,()=>{K[m]=0;b.classList.remove('on')}))});
-['splash','over','win'].forEach(id=>$(id).addEventListener('click',act));
+['splash','over','win'].forEach(id=>$(id).addEventListener('pointerdown',act));
 $('pc').addEventListener('pointerdown',e=>e.stopPropagation());
 $('pcb').addEventListener('click',()=>{const c=$('pcd').textContent,sel=()=>{const r=document.createRange();r.selectNodeContents($('pcd'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('pcb').textContent='Выделено — скопируй'};try{navigator.clipboard.writeText(c).then(()=>$('pcb').textContent='Скопировано',sel)}catch(e){sel()}});
 $('mu').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();muted=!muted;$('mu').classList.toggle('off',muted);if(mg)mg.gain.value=muted?0:1});
