@@ -2,7 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vini Sugar — игра</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
+<script type="text/javascript" nonce="84fc586ad1e546238bc3288e079" src="//local.adguard.org?ts=1792773423938&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000afbc81f4bf3789c8bacfbef7%26fn%3Dindex%25281%2529.html%26cd%3Dattachment%26ts%3D497995%26p%3Dfs%26cid%3D1%26sig%3D121c1d97c87379bef28e66fec645598142b324ce8a3fa474fc6f4181231fe7ea%26v%3D0&amp;app=com.android.chrome&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="84fc586ad1e546238bc3288e079" src="//local.adguard.org?ts=1792773423938&amp;name=AdGuard%20Extra&amp;type=user-script"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
 <style>
 :root{--page:#fcecc8;--cream:#fcecc8;--ink:#2b2b2b;--pink:#f7a8b8;--it:max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px));--ib:calc(max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px)) + var(--tg-content-safe-area-inset-bottom,0px));--il:calc(max(env(safe-area-inset-left,0px),var(--tg-safe-area-inset-left,0px)) + var(--tg-content-safe-area-inset-left,0px));--ir:calc(max(env(safe-area-inset-right,0px),var(--tg-safe-area-inset-right,0px)) + var(--tg-content-safe-area-inset-right,0px));box-sizing:border-box;padding:var(--it) var(--ir) var(--ib) var(--il)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#1f1f1f}}
@@ -30,7 +30,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 @keyframes in{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
 @keyframes fl{50%{transform:translateY(-1.2cqw)}}
 @keyframes blink{0%{opacity:0}50%{opacity:1}}
-#tc{position:fixed;left:calc(var(--il) + 1.5vw);right:calc(var(--ir) + 1.5vw);bottom:calc(var(--ib) + 9vh);display:none;justify-content:space-between;pointer-events:none;z-index:20}
+#tc{position:fixed;left:calc(var(--il) + 4vw);right:calc(var(--ir) + 6vw);bottom:calc(var(--ib) + 9vh);display:none;justify-content:space-between;pointer-events:none;z-index:20}
 #g[data-ctl="1"] ~ #tc{display:flex}
 #tc div{display:flex;gap:12px}
 #tc button{pointer-events:auto;position:relative;width:clamp(52px,17vh,96px);aspect-ratio:1;padding:0;background:#fff;opacity:.85;border:3px solid var(--ink);border-radius:0;box-shadow:0 4px 0 var(--ink);cursor:pointer;touch-action:none;transition:transform .08s,box-shadow .08s,background .15s,opacity .15s}
@@ -65,8 +65,11 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 @media (orientation:landscape){:root{--it:max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px))}}
 @media (orientation:portrait){:root{--it:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px))}
  body{align-content:start}
- #tc{left:calc(var(--il) + 5vw);right:calc(var(--ir) + 5vw);bottom:calc(var(--ib) + 5vh)}
- #tc button{width:clamp(64px,22vw,110px)}}
+ #tc{left:calc(var(--il) + 5vw);right:calc(var(--ir) + 5vw);top:61vh;bottom:auto}
+ #tc button{width:clamp(64px,22vw,110px)}
+ .top-btns{top:1.2cqw;gap:5cqw}
+ .top-btn{width:clamp(24px,4cqw,40px);height:clamp(24px,4cqw,40px);font-size:1.4cqw}
+ #mu{font-size:1.8cqw}}
 </style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();window.tgReady&&tgReady()}catch(e){}"></script>
 </head><body>
 <div id="g" data-st="splash">
