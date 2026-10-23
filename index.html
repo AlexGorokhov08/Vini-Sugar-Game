@@ -2,15 +2,15 @@
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vini Sugar — игра</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 <style>
-:root{--page:#fcecc8;--cream:#fcecc8;--ink:#2b2b2b;--pink:#f7a8b8;--it:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--ib:calc(max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px)) + var(--tg-content-safe-area-inset-bottom,0px));--il:calc(max(env(safe-area-inset-left,0px),var(--tg-safe-area-inset-left,0px)) + var(--tg-content-safe-area-inset-left,0px));--ir:calc(max(env(safe-area-inset-right,0px),var(--tg-safe-area-inset-right,0px)) + var(--tg-content-safe-area-inset-right,0px));box-sizing:border-box;padding:var(--it) var(--ir) var(--ib) var(--il)}
+:root{--page:#fcecc8;--cream:#fcecc8;--ink:#2b2b2b;--pink:#f7a8b8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#1f1f1f}}
 :root[data-theme="dark"]{--page:#1f1f1f}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;margin:0;background:var(--page)}
 body{display:grid;place-items:center;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;font-family:'Press Start 2P',ui-monospace,monospace}
-#g{position:relative;container-type:inline-size;width:min(calc(100vw - var(--il) - var(--ir)),calc((100dvh - var(--it) - var(--ib))*16/9));aspect-ratio:16/9;background:var(--cream);color:var(--ink)}
+#g{position:relative;container-type:inline-size;width:min(100vw,calc(100dvh*16/9));aspect-ratio:16/9;background:var(--cream);color:var(--ink)}
 canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 .scr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2cqw;background:var(--cream);text-align:center;cursor:pointer;font-size:1.9cqw;line-height:1.6;padding:2cqw}
 .scr[hidden]{display:none}
@@ -32,6 +32,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 @keyframes blink{0%{opacity:0}50%{opacity:1}}
 #tc{position:absolute;inset:auto 2cqw 5cqw 2cqw;display:none;justify-content:space-between;pointer-events:none}
 #g[data-st="play"] #tc{display:flex}
+#g[data-bn="1"] #tc{display:none !important;}
 #tc div{display:flex;gap:2cqw}
 #tc button{pointer-events:auto;position:relative;width:clamp(44px,9cqw,92px);aspect-ratio:1;padding:0;background:#fff;opacity:.85;border:.45cqw solid var(--ink);border-radius:0;box-shadow:0 .7cqw 0 var(--ink);cursor:pointer;touch-action:none;transition:transform .08s,box-shadow .08s,background .15s,opacity .15s}
 #tc button::before{content:"";position:absolute;inset:24%;background:var(--ink);clip-path:var(--ar)}
@@ -56,8 +57,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #splash .logo-box{background:var(--cream);border:.8cqw solid var(--ink);box-shadow:1.2cqw 1.2cqw 0 var(--ink);height:55%;animation:in 1s ease-out both,fl 3s ease-in-out 1s infinite;}
 .scr.sm .logo-box{height:40%;}
 #win.pcv .logo-box{height:25%;}
-</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();window.tgReady&&tgReady()}catch(e){}"></script>
-</head><body>
+</style></head><body>
 <div id="g" data-st="splash">
 <canvas id="cv"></canvas>
 <div class="top-btns">
@@ -73,7 +73,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 <div class="scr sm" id="win" hidden><div class="logo-box"><img alt=""></div><h2 id="wt"></h2><div id="ws"></div><div id="pc" hidden><div>Промокод на скидку 10% на следующий заказ</div><b id="pcd"></b><button id="pcb">Скопировать</button></div><div class="hint" id="wh"></div></div>
 </div>
 <script>
-const PROMO='Лимонный щербет';
+const PROMO_URL = 'https://vinipromo.darkflameproduction.workers.dev';
 
 const $=id=>document.getElementById(id),g=$('g'),cv=$('cv'),x=cv.getContext('2d');
 const W=208,H=117,GY=80,INK='#2b2b2b',PH=[20,36,46];cv.width=W;cv.height=H;
@@ -132,12 +132,14 @@ const LV=[
  G:[[0,240],[290,150],[490,130],[670,140],[860,130],[1040,150],[1240,130],[1420,140],[1610,390]],pl:[[100,1,40],[160,2,40],[300,2,40],[360,3,40],[500,2,44],[560,3,40],[680,2,40],[750,3,40],[870,2,44],[930,3,40],[1050,2,44],[1110,3,40],[1250,2,40],[1310,3,40],[1430,2,44],[1490,3,40],[1620,1,40],[1700,2,50],[1800,3,40],[1900,2,50]],fl:[170,380,530,720,900,1100,1290,1480,1700,1850]}];
 
 let st='splash',lv=0,L,P,FLM,ITEMS,hearts,p,cam=0,items,score,tot,lives,t=0,pts=[],bn=0;
-const K={},CNT=[];
+const K={},CNT=[],AL='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function hsh(s){let h=2166136261;for(const c of s+'vini-sugar-10'){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function promo(){const a=new Uint8Array(6),cr=window.crypto;if(cr&&cr.getRandomValues)cr.getRandomValues(a);else a.forEach((_,i)=>a[i]=Math.random()*256);let r='';for(let i=0;i<6;i++)r+=AL[a[i]%32];const h=hsh(r);return 'VINI-'+r.slice(0,3)+'-'+r.slice(3)+'-'+AL[h%32]+AL[(h>>>5)%32]}
 function build(){L=LV[lv];P=L.G.map(a=>[a[0],GY,a[1]]).concat(L.pl.map(a=>[a[0],GY-PH[a[1]-1],a[2]]));FLM=L.fl;ITEMS=[];let n=0;
  const hi=[Math.floor(L.pl.length/3),Math.floor(L.pl.length*2/3)];hearts=[];
  L.pl.forEach((a,i)=>{const y=GY-PH[a[1]-1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else ITEMS.push([L.sw[n++%3],a[0]+a[2]/2-4,y])});
  L.G.forEach(a=>{for(let b=a[0]+30;b<a[0]+a[1]-20;b+=70)if(!FLM.some(f=>Math.abs(f-b)<26))ITEMS.push([L.sw[n++%3],b,GY-10])});
- items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=150;cam=0}
+ items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=150;cam=0;g.dataset.bn='1';}
 let ac;function beep(f,d=.08){try{ac=ac||new AudioContext();const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=f;v.gain.value=.04;v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(v);v.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 
 const SC={PEN:[0,2,4,7,9],MAJ:[0,2,4,5,7,9,11],MIN:[0,2,3,5,7,8,10]};
@@ -183,8 +185,13 @@ function hurt(fall){lives--;beep(150,.25);if(lives<=0){setSt('over');show('over'
 
 function fin(){tot+=score;CNT[lv]=items.length;const last=lv>=LV.length-1;setSt(last?'fin':'nxt');const mx=CNT.reduce((a,b)=>a+b,0),pc=Math.round(tot/mx*100),ok=last&&pc>=90;$('win').classList.toggle('pcv',ok);$('pc').hidden=!ok;
  if(ok){
-  $('pcd').textContent=PROMO;$('pcb').textContent='Скопировать';
-  $('ws').textContent='Всего сладостей: '+tot+' из '+mx+' ('+pc+'%)';
+  const cd=promo();$('pcd').textContent=cd;$('pcb').textContent='Скопировать';
+  $('ws').innerHTML = last?'Всего сладостей: '+tot+' из '+mx+' ('+pc+'%)<br><span id="ps" style="font-size: 0.8em; color: #6a6a6a; display: block; margin-top: 1cqw;">Отправка боту...</span>':'';
+  if(PROMO_URL){
+   fetch(PROMO_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:cd})})
+    .then(r => { if(r.ok) $('ps').textContent = '✅ Код отправлен боту'; else throw new Error(); })
+    .catch(()=>{ $('ps').textContent = '⚠️ Ошибка связи. Сделайте скриншот кода!'; $('ps').style.color = '#e0556b'; });
+  }
  } else {
   $('ws').textContent=last?'Всего сладостей: '+tot+' из '+mx+' ('+pc+'%). Для промокода нужно 90%':'Собрано: '+score+' из '+items.length;
  }
@@ -205,6 +212,7 @@ function upd(){
   for(let i=0;i<6;i++)pts.push({x:it.x+4,y:it.y+4,vx:Math.random()*2-1,vy:-Math.random()*2,l:20})}
  for(const h of hearts)if(h.on&&lives<3&&p.x+8>h.x&&p.x+2<h.x+7&&p.y+14>h.y&&p.y<h.y+7){h.on=0;lives++;beep(990,.15);for(let i=0;i<8;i++)pts.push({x:h.x+3,y:h.y+3,vx:Math.random()*2-1,vy:-Math.random()*2,l:20,c:'#e0556b'})}
  if(!p.inv)for(const f of FLM){const a=fx(f);if(p.x+8>a+1&&p.x+2<a+7&&p.y+14>GY-6&&p.y<GY){hurt(false);break}}
+ g.dataset.bn = bn > 0 ? '1' : '0';
  pts.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=.1;a.l--});pts=pts.filter(a=>a.l>0);
  if(p.x>L.w-40)fin();
 }
@@ -260,21 +268,7 @@ $('pc').addEventListener('pointerdown',e=>e.stopPropagation());
 $('pcb').addEventListener('click',()=>{const c=$('pcd').textContent,sel=()=>{const r=document.createRange();r.selectNodeContents($('pcd'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('pcb').textContent='Выделено — скопируй'};try{navigator.clipboard.writeText(c).then(()=>$('pcb').textContent='Скопировано',sel)}catch(e){sel()}});
 $('mu').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();muted=!muted;$('mu').classList.toggle('off',muted);if(mg)mg.gain.value=muted?0:1});
 lives=3;tot=0;build();requestAnimationFrame(loop);
-function tgw(){const t=window.Telegram&&Telegram.WebApp;return(t&&t.platform&&t.platform!=='unknown')?t:null}
-function tgFull(){const t=tgw();return(t&&t.isVersionAtLeast&&t.isVersionAtLeast('8.0')&&t.requestFullscreen)?t:null}
-function isFull(){const t=tgFull();return t?!!t.isFullscreen:!!document.fullscreenElement}
-function goFull(on){const t=tgFull();try{
- if(t){on?t.requestFullscreen():t.exitFullscreen();return}
- if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
- else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
-function updFs(){$('fs').style.display=(tgFull()||document.documentElement.requestFullscreen)?'':'none'}
-const lm=matchMedia('(orientation: landscape)');
-function rot(){const t=tgFull();if(!t||!/^(android|ios)/.test(t.platform))return;
- if(lm.matches&&!t.isFullscreen)goFull(true);else if(!lm.matches&&t.isFullscreen)goFull(false)}
-function tgReady(){updFs();rot()}
-if(lm.addEventListener)lm.addEventListener('change',rot);else lm.addListener(rot);
-$('fs').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();goFull(!isFull())});
-tgReady();
+$('fs').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();try{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})}catch(e){}});
 document.body.addEventListener('click',mInit);document.body.addEventListener('touchend',mInit);
 
 
