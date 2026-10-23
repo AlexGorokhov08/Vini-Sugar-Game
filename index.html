@@ -4,13 +4,13 @@
 <title>Vini Sugar — игра</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
 <style>
-:root{--page:#fcecc8;--cream:#fcecc8;--ink:#2b2b2b;--pink:#f7a8b8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--page:#fcecc8;--cream:#fcecc8;--ink:#2b2b2b;--pink:#f7a8b8;--it:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--ib:calc(max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px)) + var(--tg-content-safe-area-inset-bottom,0px));--il:calc(max(env(safe-area-inset-left,0px),var(--tg-safe-area-inset-left,0px)) + var(--tg-content-safe-area-inset-left,0px));--ir:calc(max(env(safe-area-inset-right,0px),var(--tg-safe-area-inset-right,0px)) + var(--tg-content-safe-area-inset-right,0px));box-sizing:border-box;padding:var(--it) var(--ir) var(--ib) var(--il)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#1f1f1f}}
 :root[data-theme="dark"]{--page:#1f1f1f}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;margin:0;background:var(--page)}
 body{display:grid;place-items:center;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;font-family:'Press Start 2P',ui-monospace,monospace}
-#g{position:relative;container-type:inline-size;width:min(100vw,calc(100dvh*16/9));aspect-ratio:16/9;background:var(--cream);color:var(--ink)}
+#g{position:relative;container-type:inline-size;width:min(calc(100vw - var(--il) - var(--ir)),calc((100dvh - var(--it) - var(--ib))*16/9));aspect-ratio:16/9;background:var(--cream);color:var(--ink)}
 canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 .scr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2cqw;background:var(--cream);text-align:center;cursor:pointer;font-size:1.9cqw;line-height:1.6;padding:2cqw}
 .scr[hidden]{display:none}
@@ -56,7 +56,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #splash .logo-box{background:var(--cream);border:.8cqw solid var(--ink);box-shadow:1.2cqw 1.2cqw 0 var(--ink);height:55%;animation:in 1s ease-out both,fl 3s ease-in-out 1s infinite;}
 .scr.sm .logo-box{height:40%;}
 #win.pcv .logo-box{height:25%;}
-</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand()}catch(e){}"></script>
+</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();window.tgReady&&tgReady()}catch(e){}"></script>
 </head><body>
 <div id="g" data-st="splash">
 <canvas id="cv"></canvas>
@@ -260,7 +260,21 @@ $('pc').addEventListener('pointerdown',e=>e.stopPropagation());
 $('pcb').addEventListener('click',()=>{const c=$('pcd').textContent,sel=()=>{const r=document.createRange();r.selectNodeContents($('pcd'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('pcb').textContent='Выделено — скопируй'};try{navigator.clipboard.writeText(c).then(()=>$('pcb').textContent='Скопировано',sel)}catch(e){sel()}});
 $('mu').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();muted=!muted;$('mu').classList.toggle('off',muted);if(mg)mg.gain.value=muted?0:1});
 lives=3;tot=0;build();requestAnimationFrame(loop);
-$('fs').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();try{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})}catch(e){}});
+function tgw(){const t=window.Telegram&&Telegram.WebApp;return(t&&t.platform&&t.platform!=='unknown')?t:null}
+function tgFull(){const t=tgw();return(t&&t.isVersionAtLeast&&t.isVersionAtLeast('8.0')&&t.requestFullscreen)?t:null}
+function isFull(){const t=tgFull();return t?!!t.isFullscreen:!!document.fullscreenElement}
+function goFull(on){const t=tgFull();try{
+ if(t){on?t.requestFullscreen():t.exitFullscreen();return}
+ if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+ else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
+function updFs(){$('fs').style.display=(tgFull()||document.documentElement.requestFullscreen)?'':'none'}
+const lm=matchMedia('(orientation: landscape)');
+function rot(){const t=tgFull();if(!t||!/^(android|ios)/.test(t.platform))return;
+ if(lm.matches&&!t.isFullscreen)goFull(true);else if(!lm.matches&&t.isFullscreen)goFull(false)}
+function tgReady(){updFs();rot()}
+if(lm.addEventListener)lm.addEventListener('change',rot);else lm.addListener(rot);
+$('fs').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();goFull(!isFull())});
+tgReady();
 document.body.addEventListener('click',mInit);document.body.addEventListener('touchend',mInit);
 
 
