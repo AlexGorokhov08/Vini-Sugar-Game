@@ -139,7 +139,7 @@ function build(){L=LV[lv];P=L.G.map(a=>[a[0],GY,a[1]]).concat(L.pl.map(a=>[a[0],
  const hi=[Math.floor(L.pl.length/3),Math.floor(L.pl.length*2/3)];hearts=[];
  L.pl.forEach((a,i)=>{const y=GY-PH[a[1]-1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else ITEMS.push([L.sw[n++%3],a[0]+a[2]/2-4,y])});
  L.G.forEach(a=>{for(let b=a[0]+30;b<a[0]+a[1]-20;b+=70)if(!FLM.some(f=>Math.abs(f-b)<26))ITEMS.push([L.sw[n++%3],b,GY-10])});
- items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=150;cam=0}
+ items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=150;cam=0;}
 let ac;function beep(f,d=.08){try{ac=ac||new AudioContext();const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=f;v.gain.value=.04;v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(v);v.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 
 const SC={PEN:[0,2,4,7,9],MAJ:[0,2,4,5,7,9,11],MIN:[0,2,3,5,7,8,10]};
@@ -217,4 +217,4 @@ function upd(){
  if(p.x>L.w-40)fin();
 }
 function disc(cx,cy,r,c){x.fillStyle=c;for(let d=-r;d<=r;d++){const w=Math.floor(Math.sqrt(r*r-d*d+.5));x.fillRect(cx-w,cy+d,2*w+1,1)}}
-function hill(c,sp,base,amp,per){x.fillStyle=c;for(let a=0;a<W;a
+function hill(c,sp,base,amp,per){x.fillStyle=c;for(let a=0;a<W;
