@@ -56,7 +56,8 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #splash .logo-box{background:var(--cream);border:.8cqw solid var(--ink);box-shadow:1.2cqw 1.2cqw 0 var(--ink);height:55%;animation:in 1s ease-out both,fl 3s ease-in-out 1s infinite;}
 .scr.sm .logo-box{height:40%;}
 #win.pcv .logo-box{height:25%;}
-</style></head><body>
+</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand()}catch(e){}"></script>
+</head><body>
 <div id="g" data-st="splash">
 <canvas id="cv"></canvas>
 <div class="top-btns">
@@ -72,16 +73,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 <div class="scr sm" id="win" hidden><div class="logo-box"><img alt=""></div><h2 id="wt"></h2><div id="ws"></div><div id="pc" hidden><div>Промокод на скидку 10% на следующий заказ</div><b id="pcd"></b><button id="pcb">Скопировать</button></div><div class="hint" id="wh"></div></div>
 </div>
 <script>
-const PROMO_URL = 'https://vinipromo.darkflameproduction.workers.dev';
-const VERCEL_URL=''; // сюда адрес вида https://ваш-проект.vercel.app/api/promo
-const PROMO_URLS=[VERCEL_URL,PROMO_URL].filter(Boolean); // сначала Vercel, потом Cloudflare как запасной
-const PQ='vini_pending';
-function pq(){try{return JSON.parse(localStorage.getItem(PQ)||'[]')}catch(e){return[]}}
-function pqs(a){try{localStorage.setItem(PQ,JSON.stringify(a))}catch(e){}}
-async function post1(u,cd){const c=new AbortController(),t=setTimeout(()=>c.abort(),6000);try{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:cd}),signal:c.signal});return r.ok}catch(e){return false}finally{clearTimeout(t)}}
-async function sendPromo(cd){for(let n=0;n<3;n++){for(const u of PROMO_URLS)if(u&&await post1(u,cd))return true;await new Promise(r=>setTimeout(r,1000*(n+1)))}return false}
-async function flushPromo(){for(const cd of pq())if(await sendPromo(cd))pqs(pq().filter(x=>x!==cd))}
-addEventListener('online',flushPromo);flushPromo();
+const PROMO='Лимонный щербет';
 
 const $=id=>document.getElementById(id),g=$('g'),cv=$('cv'),x=cv.getContext('2d');
 const W=208,H=117,GY=80,INK='#2b2b2b',PH=[20,36,46];cv.width=W;cv.height=H;
@@ -140,9 +132,7 @@ const LV=[
  G:[[0,240],[290,150],[490,130],[670,140],[860,130],[1040,150],[1240,130],[1420,140],[1610,390]],pl:[[100,1,40],[160,2,40],[300,2,40],[360,3,40],[500,2,44],[560,3,40],[680,2,40],[750,3,40],[870,2,44],[930,3,40],[1050,2,44],[1110,3,40],[1250,2,40],[1310,3,40],[1430,2,44],[1490,3,40],[1620,1,40],[1700,2,50],[1800,3,40],[1900,2,50]],fl:[170,380,530,720,900,1100,1290,1480,1700,1850]}];
 
 let st='splash',lv=0,L,P,FLM,ITEMS,hearts,p,cam=0,items,score,tot,lives,t=0,pts=[],bn=0;
-const K={},CNT=[],AL='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function hsh(s){let h=2166136261;for(const c of s+'vini-sugar-10'){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
-function promo(){const a=new Uint8Array(6),cr=window.crypto;if(cr&&cr.getRandomValues)cr.getRandomValues(a);else a.forEach((_,i)=>a[i]=Math.random()*256);let r='';for(let i=0;i<6;i++)r+=AL[a[i]%32];const h=hsh(r);return 'VINI-'+r.slice(0,3)+'-'+r.slice(3)+'-'+AL[h%32]+AL[(h>>>5)%32]}
+const K={},CNT=[];
 function build(){L=LV[lv];P=L.G.map(a=>[a[0],GY,a[1]]).concat(L.pl.map(a=>[a[0],GY-PH[a[1]-1],a[2]]));FLM=L.fl;ITEMS=[];let n=0;
  const hi=[Math.floor(L.pl.length/3),Math.floor(L.pl.length*2/3)];hearts=[];
  L.pl.forEach((a,i)=>{const y=GY-PH[a[1]-1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else ITEMS.push([L.sw[n++%3],a[0]+a[2]/2-4,y])});
@@ -193,14 +183,8 @@ function hurt(fall){lives--;beep(150,.25);if(lives<=0){setSt('over');show('over'
 
 function fin(){tot+=score;CNT[lv]=items.length;const last=lv>=LV.length-1;setSt(last?'fin':'nxt');const mx=CNT.reduce((a,b)=>a+b,0),pc=Math.round(tot/mx*100),ok=last&&pc>=90;$('win').classList.toggle('pcv',ok);$('pc').hidden=!ok;
  if(ok){
-  const cd=promo();$('pcd').textContent=cd;$('pcb').textContent='Скопировать';
-  $('ws').innerHTML = last?'Всего сладостей: '+tot+' из '+mx+' ('+pc+'%)<br><span id="ps" style="font-size: 0.8em; color: #6a6a6a; display: block; margin-top: 1cqw;">Отправка боту...</span>':'';
-  if(PROMO_URLS.some(Boolean)){
-   sendPromo(cd).then(ok=>{
-    if(ok)$('ps').textContent='✅ Код отправлен боту';
-    else{pqs(pq().concat(cd).slice(-20));$('ps').textContent='⚠️ Нет связи. Сделайте скриншот кода!';$('ps').style.color='#e0556b'}
-   });
-  }
+  $('pcd').textContent=PROMO;$('pcb').textContent='Скопировать';
+  $('ws').textContent='Всего сладостей: '+tot+' из '+mx+' ('+pc+'%)';
  } else {
   $('ws').textContent=last?'Всего сладостей: '+tot+' из '+mx+' ('+pc+'%). Для промокода нужно 90%':'Собрано: '+score+' из '+items.length;
  }
