@@ -73,7 +73,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 28px);align-items:center;gap:10px;padding:10px 14px;background:#fff;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);font:11px/1.5 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:15;max-width:92vw;cursor:pointer}
 #rothint svg{height:24px;width:auto;fill:var(--ink);shape-rendering:crispEdges;flex:none}
 @media (orientation:portrait){#rothint{display:flex}}
-</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();if(Telegram.WebApp.isVersionAtLeast('8.0')&&Telegram.WebApp.requestFullscreen){Telegram.WebApp.requestFullscreen();}window.tgReady&&tgReady()}catch(e){}"></script>
+</style><script async src="https://telegram.org/js/telegram-web-app.js" onerror="window.__tgErr=1;window.tgFB&&tgFB()" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();if(Telegram.WebApp.isVersionAtLeast('8.0')&&Telegram.WebApp.requestFullscreen){Telegram.WebApp.requestFullscreen();}window.tgReady&&tgReady()}catch(e){}"></script>
 </head><body>
 <div id="g" data-st="splash">
 <canvas id="cv"></canvas>
@@ -280,7 +280,7 @@ function upd(){gameFrames++;
  }
  if(K.j&&!jp)jb=7;jp=!!K.j;if(bn>0)jb=0;
  if((jb>0||K.j)&&(p.g||p.cy>0)&&bn<=0){p.vy=-7.5;p.g=false;p.cy=0;jb=0;p.jh=1;p.jt=0;beep(520)}else if(jb>0)jb--;
- if(p.jh){p.jt++;if(!K.j&&p.jt>=3&&p.vy<-4.8)p.vy=-4.8;if(p.vy>=0)p.jh=0}
+ if(p.jh){p.jt++;if(!K.j&&p.jt>=3&&p.vy<-5.5)p.vy=-5.5;if(p.vy>=0)p.jh=0}
  p.vy=Math.min(p.vy+.45,9);
  let nx=p.x+p.vx;for(const q of P)if(q[1]>GY+10&&p.y+14>GY&&p.x+8>=q[0]&&p.x+2<=q[0]+q[2]){if(nx+2<q[0]){nx=q[0]-2;p.vx=0}if(nx+8>q[0]+q[2]){nx=q[0]+q[2]-8;p.vx=0}}
  p.x=Math.max(0,Math.min(L.w-10,nx));
@@ -475,6 +475,39 @@ if(lm.addEventListener)lm.addEventListener('change',rot);else lm.addListener(rot
 $('fs').addEventListener('click', () => { goFull(!isFull()) });
 
 tgReady();
+// ---- запасной мост к Telegram: работает, если telegram.org недоступен и скрипт не загрузился ----
+let tgFBdone=false;
+function tgFB(){
+ if(tgFBdone||(window.Telegram&&Telegram.WebApp))return;
+ let hp={};try{const q=new URLSearchParams(location.hash.slice(1));q.forEach((v,k)=>hp[k]=v);
+  if(hp.tgWebAppPlatform)sessionStorage.setItem('__vsTg',JSON.stringify(hp));else{const sv=sessionStorage.getItem('__vsTg');if(sv)hp=JSON.parse(sv)}}catch(e){}
+ const proxy=!!window.TelegramWebviewProxy,framed=(()=>{try{return window.parent!==window}catch(e){return true}})();
+ if(!hp.tgWebAppPlatform&&!proxy)return;
+ tgFBdone=true;
+ const ver=hp.tgWebAppVersion||'8.0',cbs={},css=(n,v)=>document.documentElement.style.setProperty(n,(+v||0)+'px');
+ const cmp=(a,b)=>{a=String(a).split('.');b=String(b).split('.');for(let i=0;i<4;i++){const x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0};
+ const post=(ev,d)=>{const data=d===undefined?'':d;try{if(proxy)TelegramWebviewProxy.postEvent(ev,JSON.stringify(data));else if(framed)parent.postMessage(JSON.stringify({eventType:ev,eventData:data}),'*')}catch(e){}};
+ const fire=n=>(cbs[n]||[]).forEach(f=>{try{f()}catch(e){}});
+ const WA={platform:hp.tgWebAppPlatform||'android',version:ver,isFullscreen:false,
+  isVersionAtLeast:v=>cmp(ver,v)>=0,ready(){post('web_app_ready')},expand(){post('web_app_expand')},
+  requestFullscreen(){post('web_app_request_fullscreen')},exitFullscreen(){post('web_app_exit_fullscreen')},
+  onEvent(n,f){(cbs[n]=cbs[n]||[]).push(f)},offEvent(){}};
+ const recv=(ev,d)=>{d=d||{};
+  if(ev==='fullscreen_changed'){WA.isFullscreen=!!d.is_fullscreen;fire('fullscreenChanged')}
+  else if(ev==='safe_area_changed'){['top','bottom','left','right'].forEach(k=>css('--tg-safe-area-inset-'+k,d[k]));fire('safeAreaChanged')}
+  else if(ev==='content_safe_area_changed'){['top','bottom','left','right'].forEach(k=>css('--tg-content-safe-area-inset-'+k,d[k]));fire('contentSafeAreaChanged')}
+  else if(ev==='viewport_changed')fire('viewportChanged');
+  else if(ev==='visibility_changed')fire(d.is_visible?'activated':'deactivated')};
+ window.Telegram=window.Telegram||{};
+ Telegram.WebView=Telegram.WebView||{};Telegram.WebView.receiveEvent=recv;Telegram.WebApp=WA;
+ window.TelegramGameProxy_receiveEvent=recv;
+ if(framed)addEventListener('message',e=>{try{const m=JSON.parse(e.data);recv(m.eventType,m.eventData)}catch(x){}});
+ WA.ready();WA.expand();
+ if(cmp(ver,'8.0')>=0){post('web_app_request_safe_area');post('web_app_request_content_safe_area');WA.requestFullscreen()}
+ tgReady();
+}
+if(window.__tgErr)tgFB();
+setTimeout(tgFB,2500);setTimeout(tgFB,6000);
 document.body.addEventListener('click',mInit);document.body.addEventListener('touchend',mInit);
 
 
