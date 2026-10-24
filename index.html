@@ -238,7 +238,10 @@ mInit();setInterval(mtick,60);
 ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,mInit,true));
 function show(id){['splash','over','win'].forEach(s=>$(s).hidden=s!==id)}
 function setSt(s){st=s;g.dataset.st=s}
-function newGame(){mInit();lives=3;tot=0;gameFrames=0;totalHurts=0;build();mus(1);show('');setSt('play');beep(440)}
+function newGame(){
+ mInit();lives=3;tot=0;gameFrames=0;totalHurts=0;build();mus(1);show('');setSt('play');beep(440);
+ setTimeout(() => { if($('rothint')) $('rothint').style.display='none'; }, 5000);
+}
 function act(){mInit();if(st==='nxt'){lv++;build();mus(lv+1);show('');setSt('play');beep(440)}else if(st==='over'){lives=3;build(1);show('');setSt('play');beep(440)}else if(st!=='play'){lv=0;newGame()}}
 function hurt(fall){lives--;totalHurts++;beep(150,.25);if(lives<=0){setSt('over');show('over');return}
  if(fall){p.x=L.G.filter(a=>a[0]<=p.x).pop()[0]+10;p.y=60;p.vy=0;}else p.vy=-4;p.inv=90;
@@ -435,7 +438,12 @@ function fit(){const b=document.body,aw=b.clientWidth,ah=b.clientHeight;if(!aw||
  const gh=Math.min(ah,aw*9/16),gw=gh*16/9;g.style.width=gw+'px';g.style.height=gh+'px';
  cv.style.width=(gh*W/H)+'px';cv.style.height=gh+'px';
  const t=tgw();let l=3,r=3;HY=0;
- if(t&&t.isFullscreen&&aw>ah){const rc=cv.getBoundingClientRect(),u=rc.height/H;l=Math.max(3,Math.round((150-rc.left)/u));r=Math.max(3,Math.round((95-(innerWidth-rc.right))/u))}
+ if(t&&t.isFullscreen&&aw>ah){
+  const rc=cv.getBoundingClientRect(),u=rc.height/H;
+  l=Math.max(3,Math.round((16-rc.left)/u));
+  r=Math.max(3,Math.round((16-(innerWidth-rc.right))/u));
+  HY=Math.round(44/u);
+ }
  hdL=l;hdR=r}
 addEventListener('resize',fit);setInterval(fit,700);fit();
 function tgw(){const t=window.Telegram&&Telegram.WebApp;return(t&&t.platform&&t.platform!=='unknown')?t:null}
