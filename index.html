@@ -73,7 +73,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 28px);align-items:center;gap:10px;padding:10px 14px;background:#fff;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);font:11px/1.5 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:15;max-width:92vw;cursor:pointer}
 #rothint svg{height:24px;width:auto;fill:var(--ink);shape-rendering:crispEdges;flex:none}
 @media (orientation:portrait){#rothint{display:flex}}
-</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();window.tgReady&&tgReady()}catch(e){}"></script>
+</style><script async src="https://telegram.org/js/telegram-web-app.js" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();if(Telegram.WebApp.isVersionAtLeast('8.0')&&Telegram.WebApp.requestFullscreen){Telegram.WebApp.requestFullscreen();}window.tgReady&&tgReady()}catch(e){}"></script>
 </head><body>
 <div id="g" data-st="splash">
 <canvas id="cv"></canvas>
@@ -469,7 +469,7 @@ function updFs(){$('fs').style.display=(tgFull()||document.documentElement.reque
 const lm=matchMedia('(orientation: landscape)');
 function rot(){const t=tgFull();if(!t||!/^(android|ios)/.test(t.platform))return;
  if(lm.matches&&!t.isFullscreen)goFull(true);else if(!lm.matches&&t.isFullscreen)goFull(false)}
-function tgReady(){updFs();rot();try{['viewportChanged','safeAreaChanged','contentSafeAreaChanged','fullscreenChanged'].forEach(e=>Telegram.WebApp.onEvent(e,()=>setTimeout(fit,100)));Telegram.WebApp.onEvent('deactivated',()=>setPaused(true));Telegram.WebApp.onEvent('activated',()=>setPaused(false))}catch(e){}fit()}
+function tgReady(){updFs();rot();try{const t=tgFull();if(t)t.requestFullscreen();['viewportChanged','safeAreaChanged','contentSafeAreaChanged','fullscreenChanged'].forEach(e=>Telegram.WebApp.onEvent(e,()=>setTimeout(fit,100)));Telegram.WebApp.onEvent('deactivated',()=>setPaused(true));Telegram.WebApp.onEvent('activated',()=>setPaused(false))}catch(e){}fit()}
 if(lm.addEventListener)lm.addEventListener('change',rot);else lm.addListener(rot);
 
 $('fs').addEventListener('click', () => { goFull(!isFull()) });
