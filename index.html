@@ -451,15 +451,17 @@ function tgFull(){const t=tgw();return(t&&t.isVersionAtLeast&&t.isVersionAtLeast
 function isFull(){const t=tgFull();return t?!!t.isFullscreen:!!document.fullscreenElement}
 function goFull(on){const t=tgFull();try{
  if(t){on?t.requestFullscreen():t.exitFullscreen();return}
- if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
- else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
+ const el=document.documentElement;
+ if(on){const req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;if(req)req.call(el).catch(()=>{});}
+ else{const ext=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;if(ext)ext.call(document).catch(()=>{});}
+}catch(e){}}
 function updFs(){$('fs').style.display=(tgFull()||document.documentElement.requestFullscreen)?'':'none'}
 const lm=matchMedia('(orientation: landscape)');
 function rot(){const t=tgFull();if(!t||!/^(android|ios)/.test(t.platform))return;
  if(lm.matches&&!t.isFullscreen)goFull(true);else if(!lm.matches&&t.isFullscreen)goFull(false)}
 function tgReady(){updFs();rot();try{['viewportChanged','safeAreaChanged','contentSafeAreaChanged','fullscreenChanged'].forEach(e=>Telegram.WebApp.onEvent(e,()=>setTimeout(fit,100)));Telegram.WebApp.onEvent('deactivated',()=>setPaused(true));Telegram.WebApp.onEvent('activated',()=>setPaused(false))}catch(e){}fit()}
 if(lm.addEventListener)lm.addEventListener('change',rot);else lm.addListener(rot);
-$('fs').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();goFull(!isFull())});
+$('fs').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();goFull(!isFull())});
 tgReady();
 document.body.addEventListener('click',mInit);document.body.addEventListener('touchend',mInit);
 
