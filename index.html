@@ -893,7 +893,7 @@ function tgFB(){
  if(cmp(ver,'8.0')>=0){post('web_app_request_safe_area');post('web_app_request_content_safe_area')}
  tgReady();
 }
-if(window.__tgErr)tgFB();
+tgFB(); // мост поднимаем сразу, не дожидаясь telegram.org (настоящий скрипт при загрузке его заменит)
 setTimeout(tgFB,2500);setTimeout(tgFB,6000);
 document.body.addEventListener('click',mInit);document.body.addEventListener('touchend',mInit);
 
