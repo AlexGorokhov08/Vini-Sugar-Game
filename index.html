@@ -57,13 +57,12 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #win.pcv .logo-box{height:35%;}
 #cv{position:absolute;left:50%;top:0;transform:translateX(-50%);height:100%}
 .scr{box-shadow:0 0 0 100vmax var(--cream)}
-/* Заставка на весь экран: картинка (splash.png) 76% ширины, края плавно растворяются в фон, надписи ниже */
-#splash{--A:76cqw;--T:1cqw;--s:calc(var(--A)/1672);padding:0;background:#fdecc4;box-shadow:0 0 0 100vmax #fdecc4}
+/* Заставка на весь экран: картинка во всю ширину/высоту (object-fit: cover) */
+#splash{position:absolute;inset:0;width:100%;height:100%;padding:0;margin:0;background:#fdecc4;z-index:100}
 #splash:not([hidden]){display:block}
-#splash .sp-art{position:absolute;left:calc((100cqw - var(--A))/2);top:var(--T);width:var(--A);height:calc(905*var(--s));overflow:hidden;
- -webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent)}
-#splash .sp-art img{display:block;width:100%;height:auto}
-#splash .sp-txt{position:absolute;left:0;right:0;bottom:1.4cqw;display:flex;flex-direction:column;align-items:center;gap:.8cqw}
+#splash .sp-art{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+#splash .sp-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;image-rendering:pixelated}
+#splash .sp-txt{position:absolute;left:50%;bottom:calc(var(--ib) + 6vh);transform:translateX(-50%);width:96%;display:flex;flex-direction:column;align-items:center;gap:1.5vh;z-index:101;pointer-events:none}
 #splash #gotag{animation:none;font-size:1.8cqw}
 #splash #gostart{font-size:2cqw}
 
@@ -74,7 +73,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
  body{align-content:start}
  #tc{left:calc(var(--il) + 5vw);right:calc(var(--ir) + 5vw);top:61vh;bottom:auto}
  }
-#rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 32px);align-items:center;justify-content:center;gap:14px;padding:12px 18px;background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font:11px/1.4 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:15;width:max-content;max-width:calc(100vw - 48px);box-sizing:border-box;text-align:center;cursor:pointer}
+#rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 32px);align-items:center;justify-content:center;gap:14px;padding:12px 18px;background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font:11px/1.4 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:110;width:max-content;max-width:calc(100vw - 48px);box-sizing:border-box;text-align:center;cursor:pointer}
 #rothint svg{height:28px;width:auto;fill:var(--ink);shape-rendering:crispEdges;flex:none}
 @media (orientation:portrait){#rothint{display:flex}}
 .desk #rothint{display:none!important}
