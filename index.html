@@ -2,7 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vini Sugar — игра</title>
-<script type="text/javascript" nonce="50795684ece24246b226b2ed796" src="//local.adguard.org?ts=1793431715144&amp;type=content-script&amp;dmn=contribution.usercontent.google.com&amp;url=https%3A%2F%2Fcontribution.usercontent.google.com%2Fdownload%3Fc%3DCgxiYXJkX3N0b3JhZ2USUBINcmVzcG9uc2VfZGF0YRo_CjAzMDhhMDQyMGFkN2U0MWI5MDAwNjVmMWYwMmI2YTU3ODAzZjE0MDY2ZGUzOTZjYzcSCxIHEK2djdKKERgB%26filename%3Dindex.html%26opi%3D103135050&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="50795684ece24246b226b2ed796" src="//local.adguard.org?ts=1793431715144&amp;name=AdGuard%20Extra&amp;type=user-script"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
 <style>
 :root{--page:#fcecc8;--cream:#fcecc8;--ink:#2b2b2b;--pink:#f7a8b8;--it:max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px));--ib:calc(max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px)) + var(--tg-content-safe-area-inset-bottom,0px));--il:calc(max(env(safe-area-inset-left,0px),var(--tg-safe-area-inset-left,0px)) + var(--tg-content-safe-area-inset-left,0px));--ir:calc(max(env(safe-area-inset-right,0px),var(--tg-safe-area-inset-right,0px)) + var(--tg-content-safe-area-inset-right,0px));box-sizing:border-box;padding:var(--it) var(--ir) var(--ib) var(--il)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#1f1f1f}}
@@ -42,11 +42,11 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 #tc button{outline:none;-webkit-tap-highlight-color:transparent}
 
 /* Панель верхних кнопок (музыка) */
-.top-btns{position:absolute;top:1.4cqw;left:30cqw;display:flex;gap:10cqw;z-index:10;pointer-events:auto;}
+.top-btns{position:absolute;left:0;top:0;display:flex;z-index:10;pointer-events:auto;}
 #g:not([data-st="play"]) .top-btns{display:none}
 
-.top-btn{position:relative;width:clamp(30px,6.2cqw,60px);height:clamp(30px,6.2cqw,60px);padding:0;background:#fff;border:.4cqw solid var(--ink);border-radius:0;box-shadow:0 .5cqw 0 var(--ink);cursor:pointer;touch-action:none;transition:transform .08s,box-shadow .08s,background .15s,opacity .15s;font:inherit;font-size:2cqw;font-weight:900;color:var(--ink);display:flex;align-items:center;justify-content:center;outline:none;-webkit-tap-highlight-color:transparent;}
-.top-btn:active{transform:translateY(.5cqw);box-shadow:0 0 0 var(--ink);}
+.top-btn{position:relative;box-sizing:border-box;width:var(--mb,30px);height:var(--mb,30px);padding:0;background:#fff;border:var(--u,2px) solid var(--ink);border-radius:0;box-shadow:0 var(--u,2px) 0 var(--ink);cursor:pointer;touch-action:none;transition:transform .08s,box-shadow .08s,background .15s,opacity .15s;font:inherit;font-size:2cqw;font-weight:900;color:var(--ink);display:flex;align-items:center;justify-content:center;outline:none;-webkit-tap-highlight-color:transparent;}
+.top-btn:active{transform:translateY(var(--u,2px));box-shadow:0 0 0 var(--ink);}
 #mu.off{background:var(--pink);text-decoration:line-through;}
 #mu{font-size:2.6cqw;-webkit-text-stroke:.1cqw var(--ink);padding:0;}
 #tc button.on{background:#ffd84a;opacity:1;transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
@@ -67,12 +67,11 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 @media (orientation:portrait){:root{--it:max(calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px)),var(--jt,0px))}
  body{align-content:start}
  #tc{left:calc(var(--il) + 5vw);right:calc(var(--ir) + 5vw);top:61vh;bottom:auto}
- .top-btns{top:1.2cqw;left:32cqw;gap:5cqw}
- .top-btn{width:clamp(24px,4cqw,40px);height:clamp(24px,4cqw,40px);font-size:1.4cqw}
- #mu{font-size:1.8cqw}}
+ }
 #rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 28px);align-items:center;gap:10px;padding:10px 14px;background:#fff;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);font:11px/1.5 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:15;max-width:92vw;cursor:pointer}
 #rothint svg{height:24px;width:auto;fill:var(--ink);shape-rendering:crispEdges;flex:none}
 @media (orientation:portrait){#rothint{display:flex}}
+.desk #rothint{display:none!important}
 </style><script async src="https://telegram.org/js/telegram-web-app.js" onerror="window.__tgErr=1;window.tgFB&&tgFB()" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();window.tgReady&&tgReady()}catch(e){}"></script>
 </head><body>
 <div id="g" data-st="splash">
@@ -96,7 +95,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 const PROMO_BOT='ViniSugarPromo_bot'; // бот, который выдаёт личные промокоды
 
 const $=id=>document.getElementById(id),g=$('g'),cv=$('cv'),x=cv.getContext('2d');
-let W=208,HY=0,hdL=3,hdR=3;const H=117,GY=80,INK='#2b2b2b',PH=[20,36,46,-22];cv.width=W;cv.height=H;
+let W=208,HY=0,hdL=3,hdR=3,cntW=62;const H=117,GY=80,INK='#2b2b2b',PH=[20,36,46,-22];cv.width=W;cv.height=H;
 document.querySelectorAll('#over img,#win img').forEach(i=>i.src=$('logo').src);
 const C={k:INK,w:'#fff',s:'#f4c6a0',b:'#8a4f2a',r:'#e0556b',p:'#f7a8b8',y:'#f6d04d',o:'#b8743f',u:'#8ee6ff',v:'#4aa3d9',m:'#9be7c4',e:'#f2b630',d:'#383838'};
 function mk(R){const w=R[0].length,c=document.createElement('canvas');c.width=w+2;c.height=R.length+2;const q=c.getContext('2d');
@@ -767,7 +766,7 @@ function draw(){
  drawSnow();drawSprinkles();
  x.restore();
  x.font='8px "Press Start 2P",monospace';x.textBaseline='top';
- if(st!=='splash'){const s=score+'/'+items.length,w=Math.ceil(x.measureText(s).width)+22;box(hdL,3+HY,w,13,'#fff');x.drawImage(SP[L.sw[0]],hdL+2,5+HY);x.fillStyle=INK;x.textAlign='left';x.fillText(s,hdL+15,6+HY)}
+ if(st!=='splash'){const s=score+'/'+items.length,w=Math.ceil(x.measureText(s).width)+22;if(cntW!==w){cntW=w;placeMu()}box(hdL,3+HY,w,13,'#fff');x.drawImage(SP[L.sw[0]],hdL+2,5+HY);x.fillStyle=INK;x.textAlign='left';x.fillText(s,hdL+15,6+HY)}
  if(st!=='splash'){box(W-hdR-36,3+HY,36,13,'#fff');for(let i=0;i<lives;i++)x.drawImage(HT,W-hdR-33+i*11,6+HY)}
  if(bn>0&&st==='play'){box(W/2-80,22,160,28,'#fff');x.fillStyle=INK;x.textAlign='center';x.fillText('Уровень '+(lv+1),W/2,27);x.fillText(L.nm,W/2,39)}
  if(st!=='splash'){const pr=Math.max(0,Math.min(1,p.x/(L.w-40))),bx=14,bw=W-28,by=H-5;box(bx,by,bw,2,'#fff');x.fillStyle=L.gc;x.fillRect(bx,by,Math.round(bw*pr),2);x.drawImage(MN,bx+Math.round(bw*pr)-3,by-2)}
@@ -811,7 +810,18 @@ function fit(){const b=document.body,aw=b.clientWidth,ah=b.clientHeight;if(!aw||
   r=Math.max(3,Math.round((16-(innerWidth-rc.right))/u));
   HY=Math.round(Math.max(44,ci)/u);
  }
- hdL=l;hdR=r}
+ hdL=l;hdR=r;R.classList.toggle('desk',isDesk());placeMu()}
+// Кнопка музыки: квадрат со стороной = высота счётчика, справа от него с отступом в свою ширину
+function placeMu(){const rc=cv.getBoundingClientRect(),gr=g.getBoundingClientRect();if(!rc.height)return;
+ const u=rc.height/H,sz=Math.round(15*u*100)/100,b=document.querySelector('.top-btns');
+ g.style.setProperty('--u',u+'px');g.style.setProperty('--mb',sz+'px');
+ b.style.left=(rc.left-gr.left+(hdL+cntW+1)*u+sz)+'px';b.style.top=(rc.top-gr.top+(2+HY)*u)+'px'}
+// Компьютер: Telegram Desktop/Web или устройство с мышью
+function isDesk(){const t=tgw();if(t&&t.platform)return /^(tdesktop|macos|weba|webk|web|unigram)/.test(t.platform);return matchMedia('(hover:hover) and (pointer:fine)').matches}
+// На компьютере первое нажатие включает полный экран (один раз, чтобы не мешать выходу из него)
+let autoFs=false;
+addEventListener('pointerdown',()=>{if(autoFs||!isDesk())return;autoFs=true;if(isFull())return;
+ try{const t=tgFull();if(t)t.requestFullscreen();else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;if(rq){const r=rq.call(el);if(r&&r.catch)r.catch(()=>{})}}}catch(e){}},true);
 addEventListener('resize',fit);setInterval(fit,700);fit();
 function fitBurst(){fit();[60,200,450,900,1600].forEach(d=>setTimeout(fit,d))}
 addEventListener('orientationchange',fitBurst);
