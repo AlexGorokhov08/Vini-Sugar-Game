@@ -74,8 +74,8 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
  body{align-content:start}
  #tc{left:calc(var(--il) + 5vw);right:calc(var(--ir) + 5vw);top:61vh;bottom:auto}
  }
-#rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 28px);align-items:center;gap:10px;padding:10px 14px;background:#fff;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);font:11px/1.5 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:15;max-width:92vw;cursor:pointer}
-#rothint svg{height:24px;width:auto;fill:var(--ink);shape-rendering:crispEdges;flex:none}
+#rothint{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--it) + (100vw - var(--il) - var(--ir))*.5625 + 32px);align-items:center;justify-content:center;gap:14px;padding:12px 18px;background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font:11px/1.4 'Press Start 2P',ui-monospace,monospace;color:var(--ink);z-index:15;width:max-content;max-width:calc(100vw - 48px);box-sizing:border-box;text-align:center;cursor:pointer}
+#rothint svg{height:28px;width:auto;fill:var(--ink);shape-rendering:crispEdges;flex:none}
 @media (orientation:portrait){#rothint{display:flex}}
 .desk #rothint{display:none!important}
 </style><script async src="https://telegram.org/js/telegram-web-app.js" onerror="window.__tgErr=1;window.tgFB&&tgFB()" onload="try{Telegram.WebApp.ready();Telegram.WebApp.expand();window.tgReady&&tgReady()}catch(e){}"></script>
@@ -97,21 +97,22 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 <div class="scr sm" id="over" hidden><div class="logo-box"><img alt="Vini Sugar" src="logo.png"></div><h2>Не вышло!</h2><div>Нажми, чтобы начать уровень заново</div></div>
 <div class="scr sm" id="win" hidden><div class="logo-box"><img alt="Vini Sugar" src="logo.png"></div><h2 id="wt"></h2><div id="ws"></div><div id="pc" hidden><div>Промокод на скидку 10% на следующий заказ</div><b id="pcd"></b><button id="pcb">Скопировать</button></div><div class="hint" id="wh"></div></div>
 </div>
-<div id="rothint"><svg viewBox="0 0 7 11"><rect x="0" y="0" width="1" height="1"/><rect x="1" y="0" width="1" height="1"/><rect x="2" y="0" width="1" height="1"/><rect x="3" y="0" width="1" height="1"/><rect x="4" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="6" y="0" width="1" height="1"/><rect x="0" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="0" y="10" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="5" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/></svg><svg viewBox="0 0 5 5"><rect x="2" y="0" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></svg><svg viewBox="0 0 11 7"><rect x="0" y="0" width="1" height="1"/><rect x="1" y="0" width="1" height="1"/><rect x="2" y="0" width="1" height="1"/><rect x="3" y="0" width="1" height="1"/><rect x="4" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="6" y="0" width="1" height="1"/><rect x="7" y="0" width="1" height="1"/><rect x="8" y="0" width="1" height="1"/><rect x="9" y="0" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="0" y="1" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/></svg><span>Поверните телефон набок</span></div>
+<div id="rothint"><svg viewBox="0 0 36 15"><path fill-rule="evenodd" d="M0,2 h7 v11 h-7 z M1,3 h5 v9 h-5 z M3,11 h1 v1 h-1 z M25,4 h11 v7 h-11 z M26,5 h9 v5 h-9 z M33,7 h1 v1 h-1 z M12,7 h6 v-2 h1 v1 h1 v1 h1 v1 h-1 v1 h-1 v1 h-1 v-2 h-6 z"/></svg><span>Поверните телефон набок</span></div>
 <div id="tc"><div><button id="bl" aria-label="Влево"></button><button id="br" aria-label="Вправо"></button></div><button id="bj" aria-label="Прыжок"></button></div>
 <script>
 const PROMO_BOT='ViniSugarPromo_bot'; // бот, который выдаёт личные промокоды
 
 const $=id=>document.getElementById(id),g=$('g'),cv=$('cv'),x=cv.getContext('2d');
 let W=208,HY=0,hdL=3,hdR=3,cntW=62;const H=117,GY=80,INK='#2b2b2b',PH=[20,36,46,-22];cv.width=W;cv.height=H;
-const C={k:INK,w:'#fff',s:'#f4c6a0',b:'#8a4f2a',r:'#e0556b',p:'#f7a8b8',y:'#f6d04d',o:'#b8743f',u:'#8ee6ff',v:'#4aa3d9',m:'#9be7c4',e:'#f2b630',d:'#383838'};
+const C={k:INK,w:'#fff',s:'#f4c6a0',b:'#8a4f2a',r:'#e0556b',p:'#f7a8b8',y:'#f6d04d',o:'#b8743f',u:'#8ee6ff',v:'#4aa3d9',m:'#9be7c4',e:'#f2b630',d:'#383838',c:'#d9d9d9',g:'#555'};
 function mk(R){const w=R[0].length,c=document.createElement('canvas');c.width=w+2;c.height=R.length+2;const q=c.getContext('2d');
  const on=(i,j)=>R[j]&&C[R[j][i]];
- for(let j=-1;j<=R.length;j++)for(let i=-1;i<=w;i++){if(on(i,j))q.fillStyle=C[R[j][i]];else if(on(i-1,j)||on(i+1,j)||on(i,j-1)||on(i,j+1))q.fillStyle=INK;else continue;q.fillRect(i+1,j+1,1,1)}
+ const no=(i,j)=>R[j]&&R[j][i]&&R[j][i]!=="k"&&R[j][i]!==".";
+ for(let j=-1;j<=R.length;j++)for(let i=-1;i<=w;i++){if(on(i,j))q.fillStyle=C[R[j][i]];else if(no(i-1,j)||no(i+1,j)||no(i,j-1)||no(i,j+1))q.fillStyle=INK;else continue;q.fillRect(i+1,j+1,1,1)}
  return c}
 const body=["...kkkk...","..kwwwwk..",".kwwwwwwk.",".kkkkkkkk.",".kbssssbk.",".kbksskbk.",".kssrrssk.","...kssk...","..kwwwwk..",".kppppppk.",".kppwwppk.",".kppwwppk.","..kkkkkk.."];
 const hd=(b,o,nh)=>[...(nh?["..........","..........","..........","..........","...kkkk..."]:["..kkkkkk..",".kwwwwwwk.",".kwwwwwwk.","..kwwwwk..",".kkwwwwkk."]),".kbbbbbbk.","kbbbbbssbk",b?"kbbsssssbk":"kbbsksksbk",o?"kbbsskssbk":"kbbssrssbk","...kssk..."];
-const TI=["..kwwwwk..",".kwwwwwwk.",".swwwwwws.",".kwwwwwwk.","..kkkkkk.."],TA=[".skwwwwk..",".swwwwwwk.","..wwwwwwks",".kwwwwwwk.","..kkkkkk.."],TB=["..kwwwwks.",".kwwwwwws.","skwwwwww..",".kwwwwwwk.","..kkkkkk.."],TU=["sskwwwwkss",".kwwwwwwk.",".kwwwwwwk.",".kwwwwwwk.","..kkkkkk.."];
+const TI=["..kwwwwk..",".kwwgwgwk.",".swwgwgws.",".kggggggk.","..kkkkkk.."],TA=[".skwwwwk..",".swwgwgwk.","..wwgwgwks",".kggggggk.","..kkkkkk.."],TB=["..kwwwwks.",".kwwgwgws.","skwwgwgw..",".kggggggk.","..kkkkkk.."],TU=["sskwwwwkss",".kwwgwgwk.",".kwwgwgwk.",".kggggggk.","..kkkkkk.."];
 const gf=(h,t,l)=>mk([...h,...t,l]);
 const GF={i0:gf(hd(0,0,0),TI,"..kd..dk.."),i1:gf(hd(1,0,0),TI,"..kd..dk.."),j:gf(hd(0,1,0),TU,"...kdkdk.."),f:gf(hd(0,1,0),TU,"...kddkk.."),r:[gf(hd(0,0,0),TA,"...kddkk.."),gf(hd(0,0,0),TI,"..kddddk.."),gf(hd(0,0,0),TB,".kd....dk."),gf(hd(0,0,0),TI,"..kddddk..")]};
 const GF_no={i0:gf(hd(0,0,1),TI,"..kd..dk.."),i1:gf(hd(1,0,1),TI,"..kd..dk.."),j:gf(hd(0,1,1),TU,"...kdkdk.."),f:gf(hd(0,1,1),TU,"...kddkk.."),r:[gf(hd(0,0,1),TA,"...kddkk.."),gf(hd(0,0,1),TI,"..kddddk.."),gf(hd(0,0,1),TB,".kd....dk."),gf(hd(0,0,1),TI,"..kddddk..")]};
@@ -818,11 +819,11 @@ function fit(){const b=document.body,aw=b.clientWidth,ah=b.clientHeight;if(!aw||
   HY=Math.round(Math.max(44,ci)/u);
  }
  hdL=l;hdR=r;R.classList.toggle('desk',isDesk());placeMu()}
-// Кнопка музыки: квадрат со стороной = высота счётчика, справа от него с отступом в свою ширину
+// Кнопка музыки: квадрат со стороной = высота счётчика; по горизонтали справа от счётчика с отступом в свою ширину
 function placeMu(){const rc=cv.getBoundingClientRect(),gr=g.getBoundingClientRect();if(!rc.height)return;
  const u=rc.height/H,sz=Math.round(15*u*100)/100,b=document.querySelector('.top-btns');
  g.style.setProperty('--u',u+'px');g.style.setProperty('--mb',sz+'px');
- b.style.left=(rc.left-gr.left+(hdL+cntW+1)*u+sz)+'px';b.style.top=(rc.top-gr.top+(2+HY)*u)+'px'}
+ b.style.left=(rc.left-gr.left+(W-hdR-36)*u-2*sz)+'px';b.style.top=(rc.top-gr.top+2*u)+'px'} // по вертикали не следует за счётчиком (HY): остаётся у верхнего края
 // Компьютер: Telegram Desktop/Web или устройство с мышью
 function isDesk(){const t=tgw();if(t&&t.platform)return /^(tdesktop|macos|weba|webk|web|unigram)/.test(t.platform);return matchMedia('(hover:hover) and (pointer:fine)').matches}
 // На компьютере первые 3,5 с игру запустить нельзя: за это время подключается Telegram,
