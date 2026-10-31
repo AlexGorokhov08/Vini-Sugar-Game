@@ -818,10 +818,16 @@ function placeMu(){const rc=cv.getBoundingClientRect(),gr=g.getBoundingClientRec
  b.style.left=(rc.left-gr.left+(hdL+cntW+1)*u+sz)+'px';b.style.top=(rc.top-gr.top+(2+HY)*u)+'px'}
 // Компьютер: Telegram Desktop/Web или устройство с мышью
 function isDesk(){const t=tgw();if(t&&t.platform)return /^(tdesktop|macos|weba|webk|web|unigram)/.test(t.platform);return matchMedia('(hover:hover) and (pointer:fine)').matches}
-// На компьютере первое нажатие включает полный экран (один раз, чтобы не мешать выходу из него)
-let autoFs=false;
-addEventListener('pointerdown',()=>{if(autoFs||!isDesk())return;autoFs=true;if(isFull())return;
- try{const t=tgFull();if(t)t.requestFullscreen();else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;if(rq){const r=rq.call(el);if(r&&r.catch)r.catch(()=>{})}}}catch(e){}},true);
+// На компьютере полный экран включается по первому нажатию (мышь или клавиша) и повторяется, пока не получится.
+// Если игрок сам вышел из полного экрана, больше не включаем.
+let fsDone=false,seenFull=false,fsTries=0;
+function tryFs(){if(fsDone||!isDesk())return;
+ if(isFull()){seenFull=true;return}
+ if(seenFull||++fsTries>20){fsDone=true;return}
+ try{const t=tgFull();if(t)t.requestFullscreen();else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;if(rq){const r=rq.call(el);if(r&&r.catch)r.catch(()=>{})}}}catch(e){}}
+['pointerdown','pointerup','click','keydown'].forEach(ev=>addEventListener(ev,tryFs,true));
+// Нажатие вне игрового поля (по полям вокруг) тоже запускает игру на экранах заставки/паузы
+addEventListener('pointerdown',e=>{if((e.target===document.body||e.target===document.documentElement)&&st!=='play')act()});
 addEventListener('resize',fit);setInterval(fit,700);fit();
 function fitBurst(){fit();[60,200,450,900,1600].forEach(d=>setTimeout(fit,d))}
 addEventListener('orientationchange',fitBurst);
