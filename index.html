@@ -65,7 +65,6 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
 /* очень широкий экран: картинку прижимаем к низу (без полоски под ней), сверху остаётся фон под строкой состояния */
 @media (orientation:landscape) and (min-aspect-ratio:2/1){#splash .sp-art{top:auto;bottom:0}}
 #splash .sp-txt{position:absolute;left:0;right:0;top:auto;bottom:calc(var(--ib) + 2.5%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.7cqw;z-index:101;pointer-events:none}
-#splash #ver{position:absolute;left:1.2cqw;bottom:calc(var(--ib) + .8cqw);z-index:102;font-size:1.1cqw;color:#8a6a3a;opacity:.7;pointer-events:none}
 #splash #gotag{animation:none;font-size:1.7cqw;padding:.8cqw 2cqw}
 #splash #gostart{font-size:1.9cqw;padding:.8cqw 2cqw}
 /* Портрет: картинка по высоте как игровое поле (16:9), обрезается по бокам: виден центр с логотипом и поваром */
@@ -103,7 +102,6 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
     <div class="go" id="gotag">Собирай сладости и избегай опасности</div>
     <div class="go" id="gostart">Нажми на экран, чтобы начать</div>
   </div>
-  <div id="ver">v9</div>
   
 </div>
 <div class="scr sm" id="over" hidden><div class="logo-box"><img alt="Vini Sugar" src="logo.png"></div><h2>Не вышло!</h2><div>Нажми, чтобы начать уровень заново</div></div>
@@ -262,6 +260,7 @@ function newGame(){
  setTimeout(() => { if($('rothint')) $('rothint').style.display='none'; }, 5000);
 }
 function act(){if(st==='splash'&&startLock)return;mInit();if(st==='nxt'){lv++;build();mus(lv+1);show('');setSt('play');beep(440)}else if(st==='over'){lives=3;build(1);show('');setSt('play');beep(440)}else if(st!=='play'){lv=0;newGame()}}
+const DROP_T=24; // сколько кадров платформа трясётся перед падением (60 кадров = 1 с), было 60
 function hurt(fall){lives--;totalHurts++;beep(150,.25);if(lives<=0){setSt('over');show('over');return}
  if(fall){p.x=L.G.filter(a=>a[0]<=p.x).pop()[0]+10;p.y=60;p.vy=0;}else p.vy=-4*(lv===5?Math.sqrt(MOON_G):1);p.inv=90;
  MP.forEach(q=>{if(q.drop){q[1]=q.y0;q.dT=0;q.dV=0;q.dx=0;q.dy=0;}});}
@@ -284,7 +283,7 @@ function fY(a){let y=surf(a);P.forEach(q=>{if(a>=q[0]&&a<=q[0]+q[2]&&q[1]>GY)y=q
 function hh(x){let h=0;for(const q of HL)if(x>=q[0]&&x<=q[1]){const t=(x-q[0])/(q[1]-q[0]);h+=q[2]*(.5-.5*Math.cos(2*Math.PI*t))}return h}
 function surf(x){for(const a of L.G)if(x>=a[0]&&x<a[0]+a[1])return GY-Math.round(hh(x));return null}
 function upd(){gameFrames++;const GK=lv===5?MOON_G:1,SK=Math.sqrt(GK);
- for(const q of MP){if(q.drop){if(p.g&&p.on===q)q.dT++;if(q.dT>60){q.dV+=.2;const ny=q[1]+q.dV;q.dx=0;q.dy=ny-q[1];q[1]=ny;}}else{const nx=q.x0+q.ax*Math.sin(t*q.sp),ny=q.y0+q.ay*Math.sin(t*q.sp);q.dx=nx-q[0];q.dy=ny-q[1];q[0]=nx;q[1]=ny;}}
+ for(const q of MP){if(q.drop){if(p.g&&p.on===q)q.dT++;if(q.dT>DROP_T){q.dV+=.2;const ny=q[1]+q.dV;q.dx=0;q.dy=ny-q[1];q[1]=ny;}}else{const nx=q.x0+q.ax*Math.sin(t*q.sp),ny=q.y0+q.ay*Math.sin(t*q.sp);q.dx=nx-q[0];q.dy=ny-q[1];q[0]=nx;q[1]=ny;}}
  if(p.on&&p.g){p.x+=p.on.dx;p.y+=p.on.dy}p.on=null;
  const ax=bn>0?0:(K.r?1:0)-(K.l?1:0);
  if(lv===3) {
@@ -316,7 +315,7 @@ function upd(){gameFrames++;const GK=lv===5?MOON_G:1,SK=Math.sqrt(GK);
  if(!p.inv)for(const f of FLM){const a=fx(f),yy=fY(Math.round(a)+4);if(p.x+8>a+1&&p.x+2<a+7&&p.y+14>yy-6&&p.y<yy){hurt(false);break}}
  pts.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=a.g!==undefined?a.g:.1;a.l--});pts=pts.filter(a=>a.l>0);
  // Завершение только когда девочка полностью вошла в дверной проём и стоит на земле.
- // Положение учитывает масштаб торта (0.9) и его смещение при отрисовке.
+ // Положение двери: x = gx+16…27, верх = GY-12 (см. отрисовку торта).
  const gx=L.w-62, doorX=gx+16.2, doorW=12.6, doorTop=GY-11.7;
  const girlLeft=p.x, girlRight=p.x+10, girlBottom=p.y+14;
  const fullyInside=girlLeft>=doorX && girlRight<=doorX+doorW;
@@ -685,7 +684,7 @@ function bg(){
 function box(a,b,w,h,f){x.fillStyle=INK;x.fillRect(a-1,b-1,w+2,h+2);x.fillStyle=f;x.fillRect(a,b,w,h)}
 function draw(){
  bg();x.save();x.translate(-Math.round(cam),0);
- for(const q of P){const a=Math.round(q[0]+(q.drop&&q.dT>0&&q.dT<60?Math.sin(t*2)*1.5:0)),y=Math.round(q[1]),w=q[2];
+ for(const q of P){const a=Math.round(q[0]+(q.drop&&q.dT>0&&q.dT<DROP_T?Math.sin(t*2)*1.5:0)),y=Math.round(q[1]),w=q[2];
   x.fillStyle=L.gd;x.fillRect(a,y-1,w,1);x.fillStyle=q.mv?L.gc:L.gt;x.fillRect(a,y,w,3);x.fillStyle=L.gs;x.fillRect(a,y+3,w,3);x.fillStyle=L.gd;x.fillRect(a,y+6,w,1);x.fillRect(a,y,1,7);x.fillRect(a+w-1,y,1,7);
   if(q.mv){x.fillStyle='#fff';x.fillRect(a+2,y+4,2,1);x.fillRect(a+w-4,y+4,2,1)}}
  {const c0=Math.floor(cam)-1,c1=c0+W+3;
@@ -696,85 +695,70 @@ function draw(){
     else{x.fillStyle='rgba(0,0,0,.13)';for(let r=(((y+8)>>3)<<3)+8;r<H;r+=8)if(((c-a[0]-((r>>3)%2)*6)%12+12)%12<2)x.fillRect(c,r,1,2)}}
    for(let b=a[0]+10;b<a[0]+a[1]-6;b+=22)if(b>=c0&&b<c1&&!FLM.some(f=>Math.abs(f-b)<14)){const y=GY-Math.round(hh(b));x.fillStyle=L.gd;x.fillRect(b,y-4,1,4);x.fillStyle=L.f[(b/22|0)%3];x.fillRect(b-1,y-6,3,3)}}}
  const gx=L.w-62;
- x.save();x.translate(gx*.1,GY*.1);x.scale(.9,.9);
- 
- /* Финальный торт: три яруса, глазурь с потёками, свечи с мерцающим пламенем и вход */
- // Блюдо под тортом
- box(gx-6, GY-2, 60, 3, '#e1ebf0');
- 
- // Нижний ярус
- box(gx, GY-27, 48, 26, '#f2b86f');
- x.fillStyle='#e5a557'; for(let i=4;i<44;i+=8) x.fillRect(gx+i,GY-26,2,24);
- 
- // Глазурь нижнего яруса
- box(gx-1, GY-31, 50, 5, L.gc);
- [ [2,4], [9,7], [16,3], [22,8], [31,5], [41,7] ].forEach(([dx, dh]) => {
-   x.fillStyle=INK; x.fillRect(gx+dx-1, GY-26, 6, dh+1);
-   x.fillStyle=L.gc; x.fillRect(gx+dx, GY-26, 4, dh);
- });
- 
- // Средний ярус
- box(gx+6, GY-42, 36, 16, '#f7a8b8');
- x.fillStyle='#e891a2'; for(let i=9;i<34;i+=7) x.fillRect(gx+i,GY-41,2,14);
- 
- // Глазурь среднего яруса
- box(gx+5, GY-45, 38, 5, '#e0556b');
- [ [7,5], [14,4], [21,6], [29,5] ].forEach(([dx, dh]) => {
-   x.fillStyle=INK; x.fillRect(gx+dx-1, GY-40, 5, dh+1);
-   x.fillStyle='#e0556b'; x.fillRect(gx+dx, GY-40, 3, dh);
- });
- 
- // Верхний ярус
- box(gx+12, GY-53, 24, 12, '#ffe05c');
- 
- // Воздушный крем (глазурь верхнего яруса)
- box(gx+11, GY-56, 26, 5, '#fff');
- [ [13,4], [18,6], [24,3], [31,5] ].forEach(([dx, dh]) => {
-   x.fillStyle=INK; x.fillRect(gx+dx-1, GY-51, 4, dh+1);
-   x.fillStyle='#fff'; x.fillRect(gx+dx, GY-51, 2, dh);
- });
+ x.save();
+  /* Финальный торт (рисуется сразу в нужном размере, без масштабирования, поэтому пиксели чёткие):
+     три яруса, каждый стоит на предыдущем (виден верх нижнего яруса уступом),
+     слои бисквита и крема, глазурь с аккуратными каплями, вишенки, свечи и вход */
+  const ov=(a,b,w,h,c)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};                        // заливка без контура
+  const body=(a,b,w,h,col)=>{box(a,b,w,h,col);ov(a+1,b,2,h,'rgba(255,255,255,.28)');ov(a+w-3,b,3,h,'rgba(110,50,0,.16)')}; // ярус с объёмом
+  const frost=(a,b,w,col)=>{box(a,b,w,4,col);ov(a,b,w,1,'rgba(255,255,255,.4)');ov(a,b+3,w,1,'rgba(0,0,0,.12)')};         // полоса глазури
+  const ledge=(a,b,w,col)=>{box(a,b,w,2,col);ov(a,b,w,2,'rgba(255,255,255,.5)')};                                            // верхняя плоскость яруса (уступ)
+  const drip=(a,b,len,col)=>{                                                                                                  // капля с округлым низом
+    x.fillStyle=INK;x.fillRect(a-1,b,6,len-1);x.fillRect(a,b+len-1,4,1);x.fillRect(a+1,b+len,2,1);
+    ov(a,b,4,len-1,col);ov(a+1,b+len-1,2,1,col);ov(a+1,b,1,len-1,'rgba(255,255,255,.45)');ov(a+3,b,1,len-1,'rgba(0,0,0,.1)')};
+  // Блюдо под тортом
+  box(gx-5, GY-2, 54, 3, '#e1ebf0'); ov(gx-4, GY-2, 52, 1, '#fff');
+  // Нижний ярус: бисквит с двумя слоями крема, сверху уступ и глазурь
+  body(gx, GY-18, 44, 18, '#f2b86f'); ov(gx, GY-13, 44, 2, '#fff1d0'); ov(gx, GY-7, 44, 2, '#fff1d0');
+  ledge(gx, GY-25, 44, L.gc); frost(gx-1, GY-22, 46, L.gc);
+  [[2,5],[8,8],[13,3],[29,4],[35,7],[40,4]].forEach(([dx,l])=>drip(gx+dx, GY-18, l, L.gc));
+  // Средний ярус стоит на уступе нижнего
+  body(gx+6, GY-34, 32, 10, '#f7a8b8'); ov(gx+6, GY-30, 32, 2, '#ffe1e8');
+  ledge(gx+6, GY-41, 32, '#e0556b'); frost(gx+5, GY-38, 34, '#e0556b');
+  [[7,5],[14,6],[22,3],[30,5]].forEach(([dx,l])=>drip(gx+dx, GY-34, l, '#e0556b'));
+  // Верхний ярус и воздушный крем
+  body(gx+11, GY-48, 22, 8, '#ffe05c'); ov(gx+11, GY-45, 22, 2, '#fff7c2');
+  frost(gx+10, GY-52, 24, '#fff');
+  [[12,3],[17,4],[22,3],[27,4]].forEach(([dx,l])=>drip(gx+dx, GY-48, l, '#fff'));
+  // Вишенки на уступе среднего яруса
+  [ [7, -44], [34, -44] ].forEach(([cx, cy]) => {
+    x.fillStyle=INK; x.fillRect(gx+cx-1, GY+cy-1, 5, 5); x.fillRect(gx+cx+1, GY+cy-3, 1, 3);
+    x.fillStyle='#d12844'; x.fillRect(gx+cx, GY+cy, 3, 3);
+    x.fillStyle='#ff7a91'; x.fillRect(gx+cx, GY+cy, 1, 1);
+  });
+  // Присыпка на ярусах
+  x.fillStyle = '#fff'; x.fillRect(gx+8, GY-15, 2, 1); x.fillRect(gx+37, GY-10, 2, 1); x.fillRect(gx+19, GY-31, 2, 1);
+  x.fillStyle = '#ff5c8a'; x.fillRect(gx+5, GY-10, 2, 1); x.fillRect(gx+31, GY-15, 2, 1);
+  x.fillStyle = '#ffd84a'; x.fillRect(gx+9, GY-27, 2, 1); x.fillRect(gx+29, GY-32, 2, 1);
 
- // Вишенки
- [ [9, -48], [37, -48] ].forEach(([cx, cy]) => {
-   x.fillStyle=INK; x.fillRect(gx+cx-1, GY+cy-1, 5, 5); x.fillRect(gx+cx+1, GY+cy-3, 1, 3);
-   x.fillStyle='#d12844'; x.fillRect(gx+cx, GY+cy, 3, 3);
-   x.fillStyle='#ff7a91'; x.fillRect(gx+cx, GY+cy, 1, 1);
- });
- 
- // Присыпка на ярусах
- x.fillStyle = '#fff'; x.fillRect(gx+12, GY-16, 2, 1); x.fillRect(gx+40, GY-19, 2, 1); x.fillRect(gx+22, GY-35, 2, 1);
- x.fillStyle = '#ff5c8a'; x.fillRect(gx+7, GY-20, 2, 1); x.fillRect(gx+35, GY-15, 2, 1);
- x.fillStyle = '#ffd84a'; x.fillRect(gx+10, GY-33, 2, 1); x.fillRect(gx+32, GY-36, 2, 1);
+  // Три свечи с анимированными язычками пламени
+  for(let ci=0;ci<3;ci++){
+    const cx=gx+14+ci*6, ctop=GY-57;
+    x.fillStyle=INK;x.fillRect(cx-1,ctop-1,4,8);
+    x.fillStyle='#8ee6ff';x.fillRect(cx,ctop,2,6);
+    x.fillStyle='#fff'; x.fillRect(cx,ctop+1,2,1); x.fillRect(cx,ctop+4,2,1); // декоративные полоски
+    const flick=(t+ci*5)%12;
+    x.fillStyle=INK;x.fillRect(cx,ctop-5-(flick<6?1:0),2,4);
+    x.fillStyle=flick<6?'#ff9b35':'#ffd84a';x.fillRect(cx,ctop-4-(flick<6?1:0),2,3);
+    x.fillStyle='#fff3a0';x.fillRect(cx,ctop-3-(flick<6?1:0),1,2);
+  }
 
- // Три свечи с анимированными язычками пламени (и добавлены полоски)
- for(let ci=0;ci<3;ci++){
-   const cx=gx+16+ci*7, top=GY-63;
-   x.fillStyle=INK;x.fillRect(cx-1,top-1,4,8);
-   x.fillStyle='#8ee6ff';x.fillRect(cx,top,2,6);
-   x.fillStyle='#fff'; x.fillRect(cx,top+1,2,1); x.fillRect(cx,top+4,2,1); // декоративные полоски
-   
-   const flick=(t+ci*5)%12;
-   x.fillStyle=INK;x.fillRect(cx,top-5-(flick<6?1:0),2,4);
-   x.fillStyle=flick<6?'#ff9b35':'#ffd84a';x.fillRect(cx,top-4-(flick<6?1:0),2,3);
-   x.fillStyle='#fff3a0';x.fillRect(cx,top-3-(flick<6?1:0),1,2);
- }
- 
- // дверной проход в нижней части торта (ОРИГИНАЛЬНЫЙ)
- x.fillStyle=INK;x.fillRect(gx+18,GY-13,12,13);
- x.fillStyle='#3b2430';x.fillRect(gx+20,GY-11,8,11);
- x.fillStyle='#ffe0a0';x.fillRect(gx+26,GY-7,1,1);
+  // дверной проход в нижней части торта (положение совпадает с проверкой входа в игре)
+  x.fillStyle=INK;x.fillRect(gx+16,GY-12,11,12);
+  x.fillStyle='#3b2430';x.fillRect(gx+18,GY-10,7,10);
+  x.fillStyle='#ffe0a0';x.fillRect(gx+23,GY-6,1,1);
 
- // Тонкая стрелка с чёрным абрисом, направленная точно в правый верхний угол двери.
- x.lineCap='round'; x.lineJoin='round';
- const bob=(Math.sin(t/7)+1)*1.4;x.translate(-.59*bob,.81*bob); // стрелка «подталкивает» к двери
- const ax=gx+38, ay=GY-24, tx=gx+30, ty=GY-13;
- x.strokeStyle=INK; x.lineWidth=2.4;
- x.beginPath(); x.moveTo(ax,ay); x.lineTo(tx,ty); x.lineTo(gx+30.6, GY-17);
- x.moveTo(tx,ty); x.lineTo(gx+34, GY-15.3); x.stroke();
- x.strokeStyle='#f04444'; x.lineWidth=1.2;
- x.beginPath(); x.moveTo(ax,ay); x.lineTo(tx,ty); x.lineTo(gx+30.6, GY-17);
- x.moveTo(tx,ty); x.lineTo(gx+34, GY-15.3); x.stroke();
- x.restore();
+  // Тонкая стрелка с чёрным абрисом, направленная в правый верхний угол двери.
+  x.lineCap='round'; x.lineJoin='round';
+  const bob=(Math.sin(t/7)+1)*1.4;x.translate(-.59*bob,.81*bob); // стрелка «подталкивает» к двери
+  const ax=gx+34, ay=GY-22, tx=gx+27, ty=GY-12;
+  x.strokeStyle=INK; x.lineWidth=2.2;
+  x.beginPath(); x.moveTo(ax,ay); x.lineTo(tx,ty); x.lineTo(gx+27.5, GY-15.3);
+  x.moveTo(tx,ty); x.lineTo(gx+30.6, GY-13.8); x.stroke();
+  x.strokeStyle='#f04444'; x.lineWidth=1.1;
+  x.beginPath(); x.moveTo(ax,ay); x.lineTo(tx,ty); x.lineTo(gx+27.5, GY-15.3);
+  x.moveTo(tx,ty); x.lineTo(gx+30.6, GY-13.8); x.stroke();
+  x.restore();
  for(const f of FLM){const a=Math.round(fx(f)),fy=fY(a+4)-9;const fr=Math.floor((t+a)/5)%4;x.drawImage(FLA[fr],a-1,fy);if(Math.random()<0.3)pts.push({x:a+Math.random()*8,y:fy+4+Math.random()*4,vx:(Math.random()-0.5)*0.3,vy:-0.2-Math.random()*0.4,l:10+Math.random()*15,c:Math.random()>0.5?'#f6d04d':'#e0556b',g:-0.015,s:1});}
  for(const it of items)if(it.on){const im=SP[it.t],ix=Math.round(it.x),iy=Math.round(it.y+Math.sin(t/10+it.x)*1.5);if(it.t===2){const sw=Math.round(im.width*.8),sh=Math.round(im.height*.8);x.drawImage(im,ix-Math.round(sw/2),iy-Math.round(sh/2),sw,sh)}else x.drawImage(im,ix-1,iy-1)}
  for(const h of hearts)if(h.on)x.drawImage(HT,Math.round(h.x)-1,Math.round(h.y+Math.sin(t/8+h.x)*2)-1);
