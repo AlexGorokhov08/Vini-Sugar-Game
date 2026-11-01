@@ -824,11 +824,11 @@ function placeMu(){const rc=cv.getBoundingClientRect(),gr=g.getBoundingClientRec
  b.style.left=(rc.left-gr.left+(W-hdR-36)*u-2*sz)+'px';b.style.top=(rc.top-gr.top+2*u)+'px'} // по вертикали не следует за счётчиком (HY): остаётся у верхнего края
 // Компьютер: Telegram Desktop/Web или устройство с мышью
 function isDesk(){const t=tgw();if(t&&t.platform)return /^(tdesktop|macos|weba|webk|web|unigram)/.test(t.platform);return matchMedia('(hover:hover) and (pointer:fine)').matches}
-// На компьютере первые 3,5 с игру запустить нельзя: за это время подключается Telegram,
-// потом появляется «Нажми на экран» и первое нажатие включает полный экран
-let startLock=isDesk();
-if(startLock){$('gostart').style.visibility='hidden';
- setTimeout(()=>{startLock=false;$('gostart').style.visibility=''},3500)}
+// На всех устройствах первые 3,5 с игру запустить нельзя: можно рассмотреть заставку и прочитать надписи
+// (на компьютере за это время ещё подключается Telegram), потом появляется мигающее «Нажми на экран»
+let startLock=true;
+$('gostart').style.visibility='hidden';
+setTimeout(()=>{startLock=false;$('gostart').style.visibility=''},3500);
 // На компьютере полный экран включается по первому нажатию (мышь или клавиша) и повторяется, пока не получится.
 // Если игрок сам вышел из полного экрана, больше не включаем.
 let fsDone=false,seenFull=false,fsTries=0;
