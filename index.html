@@ -825,11 +825,11 @@ function fit(){const b=document.body,aw=b.clientWidth,ah=b.clientHeight;if(!aw||
   HY=Math.round(Math.max(44,ci)/u);
  }
  hdL=l;hdR=r;R.classList.toggle('desk',isDesk());placeMu()}
-// Кнопка музыки: квадрат со стороной = высота счётчика; по горизонтали справа от счётчика с отступом в свою ширину
+// Кнопка музыки: квадрат вдвое меньше высоты счётчика; стоит левее сердец с отступом в свою ширину
 function placeMu(){const rc=cv.getBoundingClientRect(),gr=g.getBoundingClientRect();if(!rc.height)return;
- const u=rc.height/H,sz=Math.round(15*u*100)/100,b=document.querySelector('.top-btns');
+ const u=rc.height/H,sz=Math.round(7.5*u*100)/100,b=document.querySelector('.top-btns'),ls=innerWidth>innerHeight;
  g.style.setProperty('--u',u+'px');g.style.setProperty('--mb',sz+'px');
- b.style.left=(rc.left-gr.left+(W-hdR-36)*u-2*sz)+'px';b.style.top=(rc.top-gr.top+2*u)+'px'} // по вертикали не следует за счётчиком (HY): остаётся у верхнего края
+ b.style.left=(rc.left-gr.left+(W-hdR-36)*u-2*sz)+'px';b.style.top=(rc.top-gr.top+(ls?2:2+HY)*u)+'px'} // альбом: у самого верхнего края (не следует за счётчиком, смещённым под кнопки Telegram); портрет: на одной линии со счётчиками
 // Компьютер: Telegram Desktop/Web или устройство с мышью
 function isDesk(){const t=tgw();if(t&&t.platform)return /^(tdesktop|macos|weba|webk|web|unigram)/.test(t.platform);return matchMedia('(hover:hover) and (pointer:fine)').matches}
 // На всех устройствах первые 3,5 с игру запустить нельзя: можно рассмотреть заставку и прочитать надписи
