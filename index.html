@@ -149,7 +149,7 @@ function drawHelm(a,b){x.drawImage(HELM,a-2,b-2+(psq>0?-1:psq<0?1:0))}
 const SP=[
 ["...rr...","..pppp..",".pppppp.",".kkkkkk.",".kyyyyk.","..kyyk..","..kyyk..","...kk..."],
 ["...r....","..pppp..",".wwwwww.",".pppppp.",".wwwwww.",".oooooo.",".kkkkkk.","........"],
-["...kkkk...","..kppppk..",".kppppppk.","kppppppppk","kpppp..pppk","kpppp..pppk","kppppppppk",".kppppppk.","..kppppk..","...kkkk..."],
+["..pppp..",".pwppyp.","ppp..ppp","pp....py","oo....oo","ooo..ooo",".oooooo.","..oooo.."],
 ["..pppp..",".ppwppp.",".pppppp.","kkkkkkkk",".yoyoyk.","..yoyk..","...yk...","...k...."],
 ["..oooo..",".oookoo.","ookooooo","oooookoo","ookooooo",".oooook.","..oooo..","........"],
 ["........",".pppppp.","pppppppp","wwwwwwww","pppppppp",".pppppp.","........","........"],
@@ -208,7 +208,13 @@ function build(retry){L=LV[lv];P=L.pl.map(a=>[a[0],GY-PH[a[1]-1],a[2]]);MP=[];HL
   const md=cand.map(b=>occ.length?Math.min(...occ.map(q=>dd(b,q))):1e9),pick=[];
   for(let k=0;k<ng&&cand.length;k++){let bi=0,bv=-1;md.forEach((v,i)=>{if(v>bv){bv=v;bi=i}});const b=cand[bi];pick.push(b);const q=[b,surf(b)-10];md.forEach((v,i)=>{const d=dd(cand[i],q);if(d<v)md[i]=d})}
   pick.sort((a,b)=>a-b).forEach(b=>ITEMS.push([L.sw[n++%3],b,surf(b)-10]))}
- ITEMS=ITEMS.filter(a=>a[1]<L.w-88-8);items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=retry?60:150;cam=0; window.SBF=new Set(); window.BF=[]; window.Swarms={};}
+ // Сладость, оказавшаяся у самого старта (слева от героя или вплотную к нему), переносим вправо в самое свободное место,
+  // чтобы её не пропустили (справа от героя, до ближайшей платформы)
+  {const lim=Math.min(100,...P.filter(q=>q[0]>30&&q[0]<130).map(q=>q[0]-12));
+   ITEMS.filter(a=>a[1]<34&&!a.pl).forEach(q=>{let bx=null,bv=-1;
+    for(let c=40;c<=lim;c+=2){const m=Math.min(1e9,...ITEMS.filter(r=>r!==q).map(r=>Math.hypot(c-r[1],(surf(c)-10-r[2])*.6)),...hearts.map(h=>Math.hypot(c-(h.x+3),(surf(c)-10-h.y)*.6)));if(m>bv+.01){bv=m;bx=c}}
+    if(bx!==null){q[1]=bx;q[2]=surf(bx)-10}})}
+  ITEMS=ITEMS.filter(a=>a[1]<L.w-88-8);items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=retry?60:150;cam=0; window.SBF=new Set(); window.BF=[]; window.Swarms={};}
 let ac;function beep(f,d=.08){try{ac=ac||new AudioContext();const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=f;v.gain.value=.1;v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(v);v.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 let bzO,bzG;function manageBuzz(a){if(!ac||muted){if(bzG)bzG.gain.value=0;return}if(a){if(!bzO){try{bzO=ac.createOscillator();bzG=ac.createGain();bzO.type='sawtooth';bzO.frequency.value=140;bzG.gain.value=0;bzO.connect(bzG);bzG.connect(mg);bzO.start()}catch(e){}}if(bzG){bzG.gain.setTargetAtTime(0.06,ac.currentTime,0.1);bzO.frequency.setTargetAtTime(140+Math.sin(t/4)*15,ac.currentTime,0.1)}}else if(bzG){bzG.gain.setTargetAtTime(0,ac.currentTime,0.2)}}
 
@@ -768,7 +774,7 @@ function draw(){
    x.fillStyle=INK;x.fillRect(fx+2,GY-32,10+fl,8);x.fillRect(fx+12+fl,GY-30,1,4);
    x.fillStyle=L.f[1];x.fillRect(fx+2,GY-31,9+fl,6);x.fillStyle='rgba(255,255,255,.5)';x.fillRect(fx+2,GY-31,9+fl,1);x.fillStyle='rgba(0,0,0,.14)';x.fillRect(fx+2,GY-26,9+fl,1)}
  for(const f of FLM){const a=Math.round(fx(f)),fy=fY(a+4)-9;const fr=Math.floor((t+a)/5)%4;x.drawImage(FLA[fr],a-1,fy);if(Math.random()<0.3)pts.push({x:a+Math.random()*8,y:fy+4+Math.random()*4,vx:(Math.random()-0.5)*0.3,vy:-0.2-Math.random()*0.4,l:10+Math.random()*15,c:Math.random()>0.5?'#f6d04d':'#e0556b',g:-0.015,s:1});}
- for(const it of items)if(it.on){const im=SP[it.t],ix=Math.round(it.x),iy=Math.round(it.y+Math.sin(t/10+it.x)*1.5);if(it.t===2){const sw=Math.round(im.width*.8),sh=Math.round(im.height*.8);x.drawImage(im,ix-Math.round(sw/2),iy-Math.round(sh/2),sw,sh)}else x.drawImage(im,ix-1,iy-1)}
+ for(const it of items)if(it.on){const im=SP[it.t],ix=Math.round(it.x),iy=Math.round(it.y+Math.sin(t/10+it.x)*1.5);x.drawImage(im,ix-1,iy-1)}
  for(const h of hearts)if(h.on)x.drawImage(HT,Math.round(h.x)-1,Math.round(h.y+Math.sin(t/8+h.x)*2)-1);
  drawBees();
  drawButterflies();
