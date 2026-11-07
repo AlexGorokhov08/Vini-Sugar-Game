@@ -169,7 +169,7 @@ const SP=[
 ["...yy...","...yy...","yyyyyyyy",".yyyyyy.","..yyyy..","..yyyy..",".yy..yy.","yy....yy"],
 ["........","....rrr.","..rrrrrr",".rrwrrrr","rrrrrrr.","rrrrrr..",".rrr....","........"],
 ["..pppp..",".pwpppp.","pppppppp","pppwpppp",".pppppp.","...oo...","...oo...","...oo..."],
-["...r....","...r....",".cwrwwc.",".wwrwww.",".wwuwww.",".wwwwww.","..wwww..","..cccc.."],
+["...vv...","...ww...","..wwww..",".wwwwww.",".wuuuuw.",".wuuuuw.",".wwwwww.","..cccc.."],
 ["..oooo..",".oobooo.","oooooobo","oboooooo","ooobooo.",".oooboo.",".oooooo.","..oooo.."],
 ["........",".bbbbbb.","bbbbbbbb","wwwwwwww","eeeeeeee",".eeeeee.","........","........"]].map(mk);
 const FLA=[mk(["...r....","..rr.r..","..rrrr..",".rryyrr.",".rryyrr.","rryyyyrr","rryyyyrr",".rrrrrr."]),mk(["....r...","..r.rr..",".rrrrr..",".ryyyrr.","rryyyyr.","rryyyyrr","rryyyyrr",".rrrrrr."]),mk(["..r.....",".rr..r..","..rrrr..",".rryyyr.","rryyyyrr","rryyyyrr","rryyyyrr",".rrrrrr."]),mk(["...r....","..rrrr..",".rrrrr..","rryyyrr.","rryyyyr.","rryyyyrr","rryyyyrr",".rrrrrr."])];
@@ -208,7 +208,7 @@ const LV=[
 
 const MOON_G=.3,MOON_AIR=.62; // последний уровень: чем меньше MOON_G, тем «тягучее» прыжок; MOON_AIR — скорость по горизонтали в воздухе
 let jp=false,jb=0,paused=false;
-let MEL=[],cy=0;const MELT_T=72; // сколько кадров стоять на кубике до таяния (60 кадров = 1 с), было 36 // тающие кубики, вертикальная камера (cy - сдвиг мира вниз, т.е. камера поднялась)
+let MEL=[],cy=0,camT=0;const MELT_T=72; // сколько кадров стоять на кубике до таяния (60 кадров = 1 с), было 36 // тающие кубики, вертикальная камера (cy - сдвиг мира вниз, т.е. камера поднялась)
 let st='splash',lv=0,L,P,FLM,ITEMS,hearts,MP=[],HL=[],p,cam=0,items,score,tot,lives,t=0,pts=[],bn=0,gameFrames=0,totalHurts=0;
 const K={},CNT=[];
 // Вертикальный уровень: платформы с абсолютной высотой, пружины, тающие кубики, огоньки на платформах
@@ -222,7 +222,7 @@ function buildV(retry){
  if(!L.noauto)L.pl.forEach(a=>{const cx=a[0]+a[2]/2,y=a[3]-12;if(hearts.some(h=>Math.abs(h.x+3-cx)<10&&Math.abs(h.y-y)<4))return;ITEMS.push([L.sw[n++%3],cx-4,y])});
  (L.it||[]).forEach(a=>ITEMS.push([L.sw[n++%3],a[0],a[1]]));
  items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));
- p={x:L.x0+14,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=retry?60:150;cam=(L.w-W)/2;cy=0;window.SBF=new Set();window.BF=[];window.Swarms={};
+ p={x:L.x0+14,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=retry?60:150;cam=(L.w-W)/2;cy=0;camT=0;window.SBF=new Set();window.BF=[];window.Swarms={};
 }
 function build(retry){L=LV[lv];MEL=[];if(L.vert){buildV(retry);return}P=L.pl.map(a=>[a[0],GY-PH[a[1]-1],a[2]]);MP=[];HL=[];
  L.G.forEach((a,i)=>{const s0=a[0],l=a[1],e=i===L.G.length-1?130:30;if(l>=140){const w=Math.min(90,l-40),b=s0+(i?14:30);HL.push([b,b+w,[12,14,10][i%3]]);if(l>=300){const w2=Math.min(90,l-200);HL.push([s0+l-e-w2,s0+l-e,[10,12,14][i%3]])}}});
@@ -247,6 +247,17 @@ function build(retry){L=LV[lv];MEL=[];if(L.vert){buildV(retry);return}P=L.pl.map
     if(bx!==null){q[1]=bx;q[2]=surf(bx)-10}})}
   ITEMS=ITEMS.filter(a=>a[1]<L.w-88-8);items=ITEMS.map(a=>({t:a[0],x:a[1],y:a[2],on:1}));p={x:20,y:60,vx:0,vy:0,g:false,f:1,inv:0};score=0;pts=[];bn=retry?60:150;cam=0; window.SBF=new Set(); window.BF=[]; window.Swarms={};}
 let ac;function beep(f,d=.08){try{ac=ac||new AudioContext();const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=f;v.gain.value=.1;v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(v);v.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+let wtS,wtG;
+function manageWater(a){ // тихий шум воды на уровне с водопадом
+ if(!ac||muted){if(wtG)wtG.gain.value=0;return}
+ if(a){
+  if(!wtS){try{const len=ac.sampleRate*2,buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0);let lp=0;
+   for(let i=0;i<len;i++){const w=Math.random()*2-1;lp+=(w-lp)*.35;d[i]=lp}
+   wtS=ac.createBufferSource();wtS.buffer=buf;wtS.loop=true;
+   const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=350;const lpf=ac.createBiquadFilter();lpf.type='lowpass';lpf.frequency.value=2800;
+   wtG=ac.createGain();wtG.gain.value=0;wtS.connect(hp);hp.connect(lpf);lpf.connect(wtG);wtG.connect(mg);wtS.start()}catch(e){}}
+  if(wtG)wtG.gain.setTargetAtTime(.045,ac.currentTime,.4);
+ }else if(wtG)wtG.gain.setTargetAtTime(0,ac.currentTime,.3)}
 let bzO,bzG;function manageBuzz(a){if(!ac||muted){if(bzG)bzG.gain.value=0;return}if(a){if(!bzO){try{bzO=ac.createOscillator();bzG=ac.createGain();bzO.type='sawtooth';bzO.frequency.value=140;bzG.gain.value=0;bzO.connect(bzG);bzG.connect(mg);bzO.start()}catch(e){}}if(bzG){bzG.gain.setTargetAtTime(0.06,ac.currentTime,0.1);bzO.frequency.setTargetAtTime(140+Math.sin(t/4)*15,ac.currentTime,0.1)}}else if(bzG){bzG.gain.setTargetAtTime(0,ac.currentTime,0.2)}}
 
 const SC={PEN:[0,2,4,7,9],MAJ:[0,2,4,5,7,9,11],MIN:[0,2,3,5,7,8,10]};
@@ -345,7 +356,7 @@ function upd(){gameFrames++;const GK=L.moon?MOON_G:1,SK=Math.sqrt(GK);
   const s1=surf(p.x+2),s2=surf(p.x+8),sy=Math.min(s1==null?1e9:s1,s2==null?1e9:s2);
   if(sy<1e9&&oy<=sy+3&&(p.y+14>=sy||(wg&&sy-(p.y+14)<=3))){p.y=sy-14;p.vy=0;p.g=true;p.on=null}}
  if(p.g)p.cy=7;else if(p.cy>0)p.cy--;
- for(const q of MEL){if(q.gone>0){if(--q.gone===0)q.mt=0}else if(p.g&&p.stand===q){if(++q.mt>MELT_T){q.gone=240;q.mt=0;p.g=false}}else if(q.mt>0)q.mt--} // сахарные кубики тают под ногами (MELT_T кадров) и через 4 с возвращаются
+ for(const q of MEL){if(q.gone>0){if(--q.gone===0)q.mt=0}else if(p.g&&p.stand===q){if(++q.mt>MELT_T){q.gone=150;q.mt=0;p.g=false}}else if(q.mt>0)q.mt--} // сахарные кубики тают под ногами (MELT_T кадров) и через 2,5 с возвращаются
  if(!wg&&p.g){p.sq=6;for(let i=0;i<5;i++)pts.push({x:p.x+5,y:p.y+14,vx:(i-2)*.4,vy:-Math.random()*.6,l:14,c:'#fff'})}if(p.sq>0)p.sq--;if(p.inv>0)p.inv--;if(bn>0)bn--;
  if(p.y>H+20)hurt(true);
  for(const it of items)if(it.on&&p.x+8>it.x&&p.x+2<it.x+8&&p.y+14>it.y&&p.y<it.y+8){it.on=0;score++;beep(880,.1);
@@ -362,7 +373,10 @@ function upd(){gameFrames++;const GK=L.moon?MOON_G:1,SK=Math.sqrt(GK);
  // Координата p.y — верх персонажа, поэтому проверяем его нижний край, а не верх.
  const insideVertically=girlBottom>=GYc-1 && girlBottom<=GYc+2;
  if(p.g && fullyInside && insideVertically)fin();
- if(L.vert){const ex=Math.max(0,Math.min(24,(L.top+120-p.y)/134*24));const tgt=Math.max(0,Math.min(62-(L.top-14)+24,62-p.y-p.vy*2.5+ex));cy+=(tgt-cy)*.25} // камера следует за героем вверх и вниз
+ if(L.vert){const ex=Math.max(0,Math.min(24,(L.top+120-p.y)/134*24)),cyMax=62-(L.top-14)+24;let rate=.09;
+  if(p.g)camT=62-p.y+ex; // стоим на платформе: камера плавно едет к ней, прыжки её не дёргают
+  else{const sy=p.y+cy;if(sy<14){camT=cy+(14-sy);rate=.3}else if(sy>80){camT=cy+(80-sy);rate=.3}} // в воздухе: только не даём герою выйти за край экрана
+  camT=Math.max(0,Math.min(cyMax,camT));cy+=(camT-cy)*rate} // плавная вертикальная камера
 }
 function disc(cx,cy,r,c){x.fillStyle=c;for(let d=-r;d<=r;d++){const w=Math.floor(Math.sqrt(r*r-d*d+.5));x.fillRect(cx-w,cy+d,2*w+1,1)}}
 function hill(c,sp,base,amp,per){x.fillStyle=c;for(let a=0;a<W;a++){const h=base+Math.sin((a+cam*sp)/per)*amp+Math.sin((a+cam*sp)/(per*.37))*amp*.3;x.fillRect(a,Math.floor(h),1,H)}}
@@ -715,6 +729,28 @@ function fWall(side){ // стена из имбирного печенья по 
    if(sx+7<=x1&&bhash(ri*131+Math.floor((sx+cam)/14))%3===0){x.fillStyle='#6b3f26';x.fillRect(sx+5,yy+4,2,2)}}
   const d=2+bhash(ri*7+side*3)%5;x.fillStyle='#fff6e6';x.fillRect(side?ex:ex-3-d,yy+2,3+d,5);x.fillStyle='#e8d2b8';x.fillRect(side?ex:ex-3-d,yy+6,3+d,1)}
  x.fillStyle='#7a4a2a';x.fillRect(side?ex-1:ex,0,1,H)}
+function drawSource(wx0,ww,yl){ // вершина: холмистая местность из печенья и молочное озеро, из которого вытекает водопад
+ const lx=Math.round(52-cam),rx=Math.round(252-cam),L0=Math.round(78-cam),R0=Math.round(226-cam),cw=Math.round(cam);
+ const hAt=(sx,side)=>{const t0=side?(sx-R0)/(rx-R0):(L0-sx)/(L0-lx);return 6+Math.round(t0*32)}; // высота холма над молоком
+ for(const side of [0,1]){ // холмы из печенья: выше у стен, ниже у озера; слои идут горизонтально
+  const a=side?R0:lx,b=side?rx:L0;
+  for(let sx=a;sx<b;sx+=3){const k=Math.floor((sx+cw)/3),top=yl-hAt(sx,side)-bhash(k*3+side)%3,base=yl+34;
+   x.fillStyle='#c58a56';x.fillRect(sx,top,3,base-top);
+   x.fillStyle='#fff6e6';x.fillRect(sx,top,3,2);
+   x.fillStyle='#a06c3e';for(let yy=top+7;yy<base;yy+=8)x.fillRect(sx,yy,3,1);
+   if(bhash(k*7+side)%8===0){x.fillStyle='#6b3f26';x.fillRect(sx+1,top+4+(k%3)*8,2,2)}}}
+ for(const [bsx,side,r] of [[lx+16,0,9],[lx+46,0,7],[rx-18,1,10],[rx-48,1,7]]){ // печенья-валуны лежат на холмах
+  const bx=bsx,by=yl-hAt(bsx,side)-r+3;
+  disc(bx,by,r+1,'#7a4a2a');disc(bx,by,r,'#c58a56');x.fillStyle='#fff6e6';x.fillRect(bx-r+3,by-r+1,r*2-6,2);
+  x.fillStyle='#6b3f26';x.fillRect(bx-2,by,2,2);x.fillRect(bx+2,by+3,2,2);x.fillRect(bx-4,by+4,2,2)}
+ // озеро: молоко между берегами, переднюю стенку составляют кирпичики из имбирного печенья с вырезом под водопад
+ brickRect(L0,yl+12,wx0,yl+34);brickRect(wx0+ww,yl+12,R0,yl+34);
+ x.fillStyle='#fff6e6';for(let sx=L0;sx<wx0;sx+=7)x.fillRect(sx,yl+34,6,3+bhash(sx)%3);for(let sx=wx0+ww;sx<R0;sx+=7)x.fillRect(sx,yl+34,6,3+bhash(sx)%3);
+ x.fillStyle='#cfe1ec';x.fillRect(L0-1,yl-1,R0-L0+2,14);x.fillStyle='#ffffff';x.fillRect(L0,yl,R0-L0,12);
+ x.fillStyle='#e4eff7';for(let i=0;i<7;i++){const rw=R0-L0-14;x.fillRect(L0+3+(((t>>1)+i*29)%rw),yl+2+(i%3)*4,9,1)}
+ if((t>>3)%2===0){x.fillStyle='#fff';x.fillRect(L0+20+((t>>2)%90),yl+1,2,1)}
+ for(let i=0;i<5;i++)disc(wx0+6+i*14,Math.round(yl+11+Math.sin(t/9+i)*1.2),4,'#fff') // пена у горловины водопада
+}
 function brickRect(x0,y0,x1,y1){ // кирпичики из имбирного печенья в прямоугольнике (как стены)
  if(x1<=x0||y1<=y0)return;
  x.fillStyle='#c58a56';x.fillRect(x0,y0,x1-x0,y1-y0);
@@ -738,34 +774,29 @@ function bgFall(){
  rockLayer(.25,600,-300,0,3,'#efd2bc','#e8c8b0','#e2bfa5','#ffd9ec');
  rockLayer(.5,84,220,9,11,'#d6a583','#cc9874','#c08a66','#ffb8d6');
  // водопад из молока по центру шахты: белый, с мягкими полосами; начинается от скального истока у вершины
- const ww=70,wx0=Math.round(152-ww/2-cam),lipY=L.top-80+cyr,sy=lipY-8;
- if(sy<H){const y0=Math.max(0,sy),h0=H-y0;
+ const ww=70,wx0=Math.round(152-ww/2-cam),yl=L.top-58+cyr; // yl: уровень молока в озере (на экране)
+ if(yl+8<H){const y0=Math.max(0,yl+8),h0=H-y0;
   x.fillStyle='#ffffff';x.fillRect(wx0,y0,ww,h0);
   for(let c=0;c<ww;c+=3){const hs=bhash(c*31+7),sp=2.2+(hs%5)*.5,len=10+((hs>>3)%18),per=34+((hs>>7)%22);
    x.fillStyle=((c/3|0)%2)?'#e9f3f9':'#dcebf4';
    for(let y1=-per+((t*sp*.75+(hs>>5))%per);y1<H;y1+=per){const yy=Math.round(y1);if(yy+len>y0)x.fillRect(wx0+c,Math.max(yy,y0),2,Math.min(len,yy+len-y0))}}
-  x.fillStyle='#cfe1ec';x.fillRect(wx0,y0,2,h0);x.fillRect(wx0+ww-2,y0,2,h0);
-  if(sy>-44){ // исток: полка из имбирного печенья с глазурью, на ней молочная лужа, вода переливается через вырез
-   const lx=Math.round(52-cam),rx=Math.round(252-cam),sh=34;
-   brickRect(lx,sy,wx0,sy+sh);brickRect(wx0+ww,sy,rx,sy+sh);
-   x.fillStyle='#fff6e6';x.fillRect(lx,sy-3,wx0-lx,3);x.fillRect(wx0+ww,sy-3,rx-wx0-ww,3);
-   for(let sx=lx;sx<wx0;sx+=7)x.fillRect(sx,sy+sh,6,3+bhash(sx)%3);
-   for(let sx=wx0+ww;sx<rx;sx+=7)x.fillRect(sx,sy+sh,6,3+bhash(sx)%3);
-   x.fillRect(wx0-3,sy,3,sh);x.fillRect(wx0+ww,sy,3,sh);for(let k=0;k<3;k++){x.fillRect(wx0-5,sy+6+k*10,2,4);x.fillRect(wx0+ww+3,sy+9+k*9,2,4)}
-   x.fillStyle='#cfe1ec';x.fillRect(wx0-9,sy-9,ww+18,10);x.fillStyle='#fff';x.fillRect(wx0-8,sy-8,ww+16,8);
-   x.fillStyle='#e4eff7';x.fillRect(wx0+((t>>1)%(ww-8)),sy-5,8,1);x.fillRect(wx0+((t>>1)*3%(ww-8)),sy-3,5,1)}}
+  x.fillStyle='#cfe1ec';x.fillRect(wx0,y0,2,h0);x.fillRect(wx0+ww-2,y0,2,h0)}
+ if(yl>-50)drawSource(wx0,ww,yl);
  // пена и брызги у подножия (видны, пока камера внизу)
  const gy=GY+cyr;
  if(gy<H+12){for(let i=0;i<9;i++){const bx=wx0-12+i*10,r=4+(i%3);disc(bx,Math.round(gy-1+Math.sin(t/12+i)*1.5),r,'#fff');disc(bx+3,Math.round(gy-3+Math.sin(t/9+i*2)*1.5),Math.max(2,r-2),'#f4faff')}}
  x.save();x.globalAlpha=.3;x.fillStyle='#fff';for(let i=0;i<12;i++){const mx=wx0-14+((i*29)%(ww+28)),my=((i*41+t*.35*(1+(i%3)*.3)+cyr*.9)%(H+40))-20;disc(mx+Math.round(Math.sin(t/30+i)*4),Math.round(my),5+(i%3)*2,'#fff')}x.restore();
  rockLayer(.75,60,244,5,23,'#bd825a','#b27750','#a86c46','#ff9ec3');
  fWall(0);fWall(1)}
-function drawMelt(q){ // сахарный кубик: дрожит и тает, если стоять
- const w=q[2],y=Math.round(q[1]);
- if(q.gone>0){x.fillStyle='rgba(255,255,255,.4)';for(let k=0;k<w;k+=4)x.fillRect(Math.round(q[0])+k,y+1,2,1);return}
- const m=q.mt/MELT_T,sh=m>0?Math.round(Math.sin(t*1.7)*(m>.5?1.5:.8)):0,a=Math.round(q[0])+sh,hh2=Math.max(3,7-Math.floor(m*4));
- for(let k=0;k<w;k+=10){const cw=Math.min(10,w-k);x.fillStyle='#b9a58f';x.fillRect(a+k,y-1,cw,hh2+1);x.fillStyle='#fffdf8';x.fillRect(a+k+1,y,cw-2,hh2-1);
-  x.fillStyle='#fff';x.fillRect(a+k+1,y,3,1);x.fillStyle='#dccfbf';x.fillRect(a+k+1,y+hh2-1,cw-2,1);if(m>.4){x.fillStyle='#b9a58f';x.fillRect(a+k+4,y+1,1,hh2-2)}}
+function drawMelt(q){ // сахарный кубик: дрожит и уменьшается, если стоять; растаяв, исчезает без следа
+ if(q.gone>0)return;
+ const w=q[2],y=Math.round(q[1]),m=Math.min(1,q.mt/MELT_T),sh=q.mt>0?Math.round(Math.sin(t*1.7)*(m>.5?1.5:.8)):0,a=Math.round(q[0])+sh;
+ const hh=Math.max(3,7-Math.floor(m*4)),n=Math.max(1,Math.round(w/10)); // n одинаковых кубиков на всю длину, крайний не обрезается
+ for(let i=0;i<n;i++){const x0=a+Math.round(i*w/n),x1=a+Math.round((i+1)*w/n),cw=x1-x0;
+  x.fillStyle='#b9a58f';x.fillRect(x0,y-1,cw,hh+1);
+  x.fillStyle='#fffdf8';x.fillRect(x0+1,y,cw-2,hh-1);
+  x.fillStyle='#fff';x.fillRect(x0+1,y,3,1);
+  if(m>.45){x.fillStyle='#dccfbf';x.fillRect(x0+(cw>>1),y+1,1,hh-2)}}
  if((t>>3)%3===0){x.fillStyle='#fff';x.fillRect(a+3+((t>>4)%4)*((w/4)|0),y-2,1,1)}}
 function bg(){
  if(L.vert){bgFall();return}
@@ -786,7 +817,7 @@ function bg(){
 }
 function box(a,b,w,h,f){x.fillStyle=INK;x.fillRect(a-1,b-1,w+2,h+2);x.fillStyle=f;x.fillRect(a,b,w,h)}
 function draw(){
- bg();x.save();x.translate(-Math.round(cam),L.vert?Math.round(cy):0);
+ manageWater(!!L.vert&&st==='play');bg();x.save();x.translate(-Math.round(cam),L.vert?Math.round(cy):0);
  for(const q of P){if(q.melt){drawMelt(q);continue}const a=Math.round(q[0]+(q.drop&&q.dT>0&&q.dT<DROP_T?Math.sin(t*2)*1.5:0)),y=Math.round(q[1]),w=q[2];
   x.fillStyle=L.gd;x.fillRect(a,y-1,w,1);x.fillStyle=q.mv?L.gc:L.gt;x.fillRect(a,y,w,3);x.fillStyle=L.gs;x.fillRect(a,y+3,w,3);x.fillStyle=L.gd;x.fillRect(a,y+6,w,1);x.fillRect(a,y,1,7);x.fillRect(a+w-1,y,1,7);
   if(q.mv){x.fillStyle='#fff';x.fillRect(a+2,y+4,2,1);x.fillRect(a+w-4,y+4,2,1)}}
@@ -886,7 +917,7 @@ function draw(){
  if(st!=='splash'){const pr=Math.max(0,Math.min(1,L.vert?(GY-p.y-14)/(GY-L.top):p.x/(L.w-40))),bx=14,bw=W-28,by=H-5;box(bx,by,bw,2,'#fff');x.fillStyle=L.gc;x.fillRect(bx,by,Math.round(bw*pr),2);x.drawImage(MN,bx+Math.round(bw*pr)-3,by-2)}
  if(st==='play')cam=L.vert?(L.w-W)/2:Math.max(0,Math.min(L.w-W,p.x-W/2+5));
 }
-let last=0,acc=0;function loop(ts){if(paused){last=ts;requestAnimationFrame(loop);return}acc+=Math.min(ts-last,100);last=ts;while(acc>=16.67){if(st==='play')upd();if(st==='splash')cam=(cam+.35)%(L.w-W);t++;acc-=16.67}{const cc=(st==='play'&&bn<=0)?'1':'0';if(g.dataset.ctl!==cc)g.dataset.ctl=cc}draw();requestAnimationFrame(loop)}
+let last=0,acc=0;function loop(ts){if(paused){manageWater(false);last=ts;requestAnimationFrame(loop);return}acc+=Math.min(ts-last,100);last=ts;while(acc>=16.67){if(st==='play')upd();if(st==='splash')cam=(cam+.35)%(L.w-W);t++;acc-=16.67}{const cc=(st==='play'&&bn<=0)?'1':'0';if(g.dataset.ctl!==cc)g.dataset.ctl=cc}draw();requestAnimationFrame(loop)}
 function setPaused(v){paused=v;try{if(v){if(ac&&ac.state==='running')ac.suspend()}else{last=performance.now();if(ac&&ac.state==='suspended'&&!muted)ac.resume()}}catch(e){}}
 document.addEventListener('visibilitychange',()=>setPaused(document.hidden));
 addEventListener('pagehide',()=>setPaused(true));addEventListener('pageshow',()=>setPaused(document.hidden));
