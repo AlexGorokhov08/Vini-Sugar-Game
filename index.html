@@ -468,6 +468,7 @@ function drawCosmo(){const sp=.3,pl=[],st=[];
 function drawNebula(){x.save();for(let i=0;i<7;i++){const cx=((i*83-cam*.08-t*.05)%581+581)%581-60,cy=14+(i*37%40),r=16+(i*13%14),a=i%2;x.globalAlpha=.16;disc(cx,cy,r,a?'#ff9be0':'#7de0ff');disc(cx+(r>>1),cy+3,Math.round(r*.7),a?'#ffd1f0':'#c4f3ff')}x.restore()}
 function shooting(){const id=Math.floor(t/420),ph=t%420;if(ph>70)return;const hs=bhash(id*977+5),hx=30+hs%Math.max(40,W-120)+2.8*ph,hy=6+(hs>>>8)%26+1.3*ph,cols=['#ffffff','#ffd84a','#ff9be0','#7de0ff','#ffd84a','#ff9be0','#7de0ff','#ffffff'];
  x.save();for(let k=0;k<8;k++){x.globalAlpha=1-k*.1;x.fillStyle=cols[k];const tx=Math.round(hx-2.8*k*1.8),ty=Math.round(hy-1.3*k*1.8);k%2?x.fillRect(tx,ty,2,1):x.fillRect(tx,ty,1,2)}x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(Math.round(hx),Math.round(hy),2,2);x.restore()}
+const SCARE_D = 40; // на каком расстоянии (пикселей игры) рой улетает; раньше было 18 (почти вплотную)
 function drawBees() {
     if (!L.bees) { manageBuzz(false); return; }
     let anyNerv = false;
@@ -498,10 +499,10 @@ function drawBees() {
 
         const curDx = sw.bx - (p.x+5);
         const curDy = sw.by - (p.y+7);
-        const dist = Math.sqrt(curDx*curDx + curDy*curDy);
+        const dist = Math.hypot(curDx, curDy * 0.8); // вертикаль весит чуть меньше: важнее подход по горизонтали
 
-        // Рой пугается, только если игрок почти коснулся его, и целиком улетает в случайную сторону
-        if (dist < 18 && sw.alert === 0) {
+        // Рой пугается заранее (примерно за два корпуса героя), чтобы игрок не пытался его обходить, и целиком улетает в сторону
+        if (dist < SCARE_D && sw.alert === 0) {
             sw.alert = 140;
             let ang = Math.random() * Math.PI * 2, dx = Math.cos(ang), dy = Math.sin(ang) * 0.6;
             const nx = curDx / (dist || 1), ny = curDy / (dist || 1);
@@ -512,7 +513,7 @@ function drawBees() {
             sw.ty = Math.max(16, Math.min(62, sw.by + dy * (50 + Math.random() * 25)));
         } else if (sw.alert > 0) {
             sw.alert--;
-        } else if (dist > 40) {
+        } else if (dist > SCARE_D + 30) {
             sw.tx = basex; sw.ty = basey; // успокоился и неспешно возвращается на место
         }
         const kSp = sw.alert > 0 ? 0.02 : 0.008, damp = sw.alert > 0 ? 0.9 : 0.92;
@@ -723,7 +724,7 @@ function drawSprinkles(){if(lv!==1)return;x.save();const cols=['#ffffff','#ff5c8
 function fWall(side){ // стена из имбирного печенья по краю шахты; side 0 - левая, 1 - правая
  const ex=Math.round((side?252:52)-cam),x0=side?ex:0,x1=side?W:ex,cyr=Math.round(cy);if(x1<=x0)return;
  x.fillStyle='#c58a56';x.fillRect(x0,0,x1-x0,H);
- for(let yy=-(((cyr%10)+10)%10);yy<H+10;yy+=10){const ri=Math.floor((yy-cyr)/10),st0=(ri&1)?7:0;
+ for(let yy=(((cyr%10)+10)%10)-10;yy<H+10;yy+=10){const ri=Math.round((yy-cyr)/10),st0=(ri&1)?7:0;
   x.fillStyle='#a06c3e';x.fillRect(x0,yy,x1-x0,1);
   for(let sx=x0-((((x0+cam+st0)%14)+14)%14);sx<x1;sx+=14){if(sx<x0)continue;x.fillStyle='#a06c3e';x.fillRect(sx,yy+1,1,9);
    if(sx+7<=x1&&bhash(ri*131+Math.floor((sx+cam)/14))%3===0){x.fillStyle='#6b3f26';x.fillRect(sx+5,yy+4,2,2)}}
@@ -758,10 +759,11 @@ function brickRect(x0,y0,x1,y1){ // кирпичики из имбирного �
   for(let sx=x0+((ri&1)?7:0);sx<x1;sx+=14){x.fillStyle='#a06c3e';x.fillRect(sx,yy+1,1,Math.min(9,y1-yy-1));
    if(sx+7<=x1&&bhash(ri*131+sx)%3===0){x.fillStyle='#6b3f26';x.fillRect(sx+5,yy+4,2,2)}}}}
 function rockLayer(par,eL,eR,amp,seed,cA,cB,cC,cr){ // масса скалы слева (до рваной кромки eL) и справа (от кромки eR) с полосами породы
- const cyr=Math.round(cy);
- for(let y=0;y<H;y+=2){
+ const cyr=Math.round(cy),off=Math.round(cyr*par); // сдвиг слоя целым числом пикселей: слой едет плавно, без ступенек
+ for(let wy=Math.floor(-off/2)-1;;wy++){
+  const y=wy*2+off;if(y>=H)break;if(y<-2)continue;
   const alt=Math.max(0,Math.min(1,(cyr-y+L.top+72)/110));if(alt>=1)continue; // у вершины скалы расступаются, открывая небо
-  const wy=Math.floor((y-cyr*par)/2),bi=Math.floor(wy/7);
+  const bi=Math.floor(wy/7);
   const jl=Math.sin(wy*.09+seed)*amp+Math.sin(wy*.31+seed*2)*amp*.45+(bhash(wy*5+seed)%3),jr=Math.sin(wy*.08+seed*3)*amp+Math.sin(wy*.27+seed)*amp*.45+(bhash(wy*7+seed)%3);
   const el=Math.round(eL+jl-alt*80-cam*par),er=Math.round(eR+jr+alt*80-cam*par);
   x.fillStyle=(bi%4===0)?cC:(bi%2?cA:cB);if(el>0)x.fillRect(0,y,Math.min(el,W),2);if(er<W)x.fillRect(Math.max(er,0),y,W-Math.max(er,0),2);
@@ -771,8 +773,8 @@ function bgFall(){
  disc(L.sun[0],L.sun[1]+Math.round(cyr*.04),L.sun[2],L.sun[3]);
  x.fillStyle=L.cl;for(let i=0;i<5;i++){const cx=((i*83-cam*.3-t*.05)%415+415)%415-40,cyy=((12+i*37+cyr*.25)%170)-30;x.fillRect(cx,cyy+4,28,6);x.fillRect(cx+4,cyy,10,6);x.fillRect(cx+13,cyy+1,12,5)}
  // скалы: дальний слой (светлый, во всю ширину), средний и ближний (темнее, ближе к стенам)
- rockLayer(.25,600,-300,0,3,'#efd2bc','#e8c8b0','#e2bfa5','#ffd9ec');
- rockLayer(.5,84,220,9,11,'#d6a583','#cc9874','#c08a66','#ffb8d6');
+ rockLayer(.6,600,-300,0,3,'#efd2bc','#e8c8b0','#e2bfa5','#ffd9ec');
+ rockLayer(.85,84,220,9,11,'#d6a583','#cc9874','#c08a66','#ffb8d6');
  // водопад из молока по центру шахты: белый, с мягкими полосами; начинается от скального истока у вершины
  const ww=70,wx0=Math.round(152-ww/2-cam),yl=L.top-58+cyr; // yl: уровень молока в озере (на экране)
  if(yl+8<H){const y0=Math.max(0,yl+8),h0=H-y0;
@@ -786,7 +788,7 @@ function bgFall(){
  const gy=GY+cyr;
  if(gy<H+12){for(let i=0;i<9;i++){const bx=wx0-12+i*10,r=4+(i%3);disc(bx,Math.round(gy-1+Math.sin(t/12+i)*1.5),r,'#fff');disc(bx+3,Math.round(gy-3+Math.sin(t/9+i*2)*1.5),Math.max(2,r-2),'#f4faff')}}
  x.save();x.globalAlpha=.3;x.fillStyle='#fff';for(let i=0;i<12;i++){const mx=wx0-14+((i*29)%(ww+28)),my=((i*41+t*.35*(1+(i%3)*.3)+cyr*.9)%(H+40))-20;disc(mx+Math.round(Math.sin(t/30+i)*4),Math.round(my),5+(i%3)*2,'#fff')}x.restore();
- rockLayer(.75,60,244,5,23,'#bd825a','#b27750','#a86c46','#ff9ec3');
+ rockLayer(1,60,244,5,23,'#bd825a','#b27750','#a86c46','#ff9ec3');
  fWall(0);fWall(1)}
 function drawMelt(q){ // сахарный кубик: дрожит и уменьшается, если стоять; растаяв, исчезает без следа
  if(q.gone>0)return;
