@@ -227,9 +227,15 @@ function buildV(retry){
 function build(retry){L=LV[lv];MEL=[];if(L.vert){buildV(retry);return}P=L.pl.map(a=>[a[0],GY-PH[a[1]-1],a[2]]);MP=[];HL=[];
  L.G.forEach((a,i)=>{const s0=a[0],l=a[1],e=i===L.G.length-1?130:30;if(l>=140){const w=Math.min(90,l-40),b=s0+(i?14:30);HL.push([b,b+w,[12,14,10][i%3]]);if(l>=300){const w2=Math.min(90,l-200);HL.push([s0+l-e-w2,s0+l-e,[10,12,14][i%3]])}}});
  (L.mp||[]).forEach(a=>{const q=[a[0],GY-(PH[a[1]-1]||0),a[2]];q.mv=1;q.x0=q[0];q.y0=q[1];q.ax=a[3];q.ay=a[4];q.sp=a[5];q.dx=0;q.dy=0;q.drop=a[6]||0;q.dT=0;q.dV=0;P.push(q);MP.push(q)});
+ // Платформы, «вросшие» в землю (зазор до холма меньше роста героя), поднимаем: под обычной платформой должно быть можно пройти,
+ // а подвижная в нижней точке пути может подходить к земле, но не уходить в неё
+ {const onG=x=>L.G.some(a=>x>=a[0]&&x<a[0]+a[1]);
+  const clr=(xa,wa,ya)=>{let m=1e9;for(let x=Math.floor(xa);x<=xa+wa;x+=2)if(onG(x))m=Math.min(m,surf(x)-ya);return m};
+  P.forEach(q=>{if(q.mv||q[1]>=GY)return;const c=clr(q[0],q[2],q[1]);if(c<14)q[1]-=Math.ceil(18-c)});
+  MP.forEach(q=>{let c=1e9;for(let ph=-1;ph<=1.001;ph+=.25)c=Math.min(c,clr(q.x0+q.ax*ph,q[2],q.y0+q.ay*ph));if(c<6){const d=Math.ceil(6-c);q.y0-=d;q[1]=q.y0}})}
  FLM=(L.fl||[]).map(f=>{let fo=typeof f==='number'?{x:f,p:0}:{x:f[0],p:f[1]};let gSeg=L.G.find(g=>fo.x>=g[0]&&fo.x<=g[0]+g[1]);if(gSeg){fo.minX=gSeg[0];fo.maxX=gSeg[0]+gSeg[1]-12;}else{let pSeg=P.find(q=>fo.x>=q[0]&&fo.x<=q[0]+q[2]&&q[1]>GY);if(pSeg){fo.minX=pSeg[0];fo.maxX=pSeg[0]+pSeg[2]-12;}else{fo.minX=fo.x-L.mv;fo.maxX=fo.x+L.mv;}}return fo;});ITEMS=[];let n=0;
  const hi=[];[.22,.5,.78].forEach(f=>{let bi=-1,bd=1e9;L.pl.forEach((a,i)=>{if(hi.includes(i))return;const d=Math.abs(a[0]+a[2]/2-L.w*f);if(d<bd){bd=d;bi=i}});if(bi>=0)hi.push(bi)});hearts=[];
- L.pl.forEach((a,i)=>{const y=GY-PH[a[1]-1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else{const q=[L.sw[n++%3],a[0]+a[2]/2-4,y];q.pl=[a[0],a[2]];ITEMS.push(q)}});
+ L.pl.forEach((a,i)=>{const y=P[i][1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else{const q=[L.sw[n++%3],a[0]+a[2]/2-4,y];q.pl=[a[0],a[2]];ITEMS.push(q)}});
  let ng=0;L.G.forEach(a=>{for(let b=a[0]+30;b<a[0]+a[1]-20;b+=70)if(!FLM.some(f=>Math.abs(f.x-b)<26))ng++});
  (L.it||[]).forEach(a=>ITEMS.push([L.sw[n++%3],a[0],a[1]]));
  ITEMS.filter(q=>q.pl).forEach(q=>{const[px,pw]=q.pl;let best=q[1],bv=-1;
