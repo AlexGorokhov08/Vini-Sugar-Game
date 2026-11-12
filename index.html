@@ -216,7 +216,7 @@ function buildV(retry){
  P=L.pl.map(a=>[a[0],a[3],a[2]]);P.push([L.ptop[0],L.top,L.ptop[1]]);MP=[];HL=[];MEL=[];
  (L.mp||[]).forEach(a=>{const q=[a[0],a[7],a[2]];q.mv=1;q.x0=q[0];q.y0=q[1];q.ax=a[3];q.ay=a[4];q.sp=a[5];q.dx=0;q.dy=0;q.drop=0;q.dT=0;q.dV=0;P.push(q);MP.push(q)});
  (L.ml||[]).forEach(a=>{const q=[a[0],a[1],a[2]];q.melt=1;q.mt=0;q.gone=0;P.push(q);MEL.push(q)});
- FLM=(L.fl||[]).map(f=>({x:f[0],p:f[1],y:f[2],minX:f[3],maxX:f[4]}));
+ FLM=(L.fl||[]).map(f=>{const D=f[4]-f[3],dx=Math.max(0,Math.min(D,f[0]-f[3]));return {x:f[0],p:f[1],y:f[2],minX:f[3],maxX:f[4],u0:f[1]>1.5?2*D-dx:dx}});
  hearts=(L.hr||[]).map(a=>({x:a[0],y:a[1],on:1}));
  ITEMS=[];let n=0;
  if(!L.noauto)L.pl.forEach(a=>{const cx=a[0]+a[2]/2,y=a[3]-12;if(hearts.some(h=>Math.abs(h.x+3-cx)<10&&Math.abs(h.y-y)<4))return;ITEMS.push([L.sw[n++%3],cx-4,y])});
@@ -233,7 +233,9 @@ function build(retry){L=LV[lv];MEL=[];if(L.vert){buildV(retry);return}P=L.pl.map
   const clr=(xa,wa,ya)=>{let m=1e9;for(let x=Math.floor(xa);x<=xa+wa;x+=2)if(onG(x))m=Math.min(m,surf(x)-ya);return m};
   P.forEach(q=>{if(q.mv||q[1]>=GY)return;const c=clr(q[0],q[2],q[1]);if(c<14)q[1]-=Math.ceil(18-c)});
   MP.forEach(q=>{let c=1e9;for(let ph=-1;ph<=1.001;ph+=.25)c=Math.min(c,clr(q.x0+q.ax*ph,q[2],q.y0+q.ay*ph));if(c<6){const d=Math.ceil(6-c);q.y0-=d;q[1]=q.y0}})}
- FLM=(L.fl||[]).map(f=>{let fo=typeof f==='number'?{x:f,p:0}:{x:f[0],p:f[1]};let gSeg=L.G.find(g=>fo.x>=g[0]&&fo.x<=g[0]+g[1]);if(gSeg){fo.minX=gSeg[0];fo.maxX=gSeg[0]+gSeg[1]-12;}else{let pSeg=P.find(q=>fo.x>=q[0]&&fo.x<=q[0]+q[2]&&q[1]>GY);if(pSeg){fo.minX=pSeg[0];fo.maxX=pSeg[0]+pSeg[2]-12;}else{fo.minX=fo.x-L.mv;fo.maxX=fo.x+L.mv;}}return fo;});ITEMS=[];let n=0;
+ FLM=(L.fl||[]).map(f=>{let fo=typeof f==='number'?{x:f,p:0}:{x:f[0],p:f[1]};let gSeg=L.G.find(g=>fo.x>=g[0]&&fo.x<=g[0]+g[1]);if(gSeg){fo.minX=gSeg[0];fo.maxX=gSeg[0]+gSeg[1]-10;}else{let pSeg=P.find(q=>fo.x>=q[0]&&fo.x<=q[0]+q[2]&&q[1]>GY);if(pSeg){fo.minX=pSeg[0];fo.maxX=pSeg[0]+pSeg[2]-10;}else{fo.minX=fo.x-L.mv;fo.maxX=fo.x+L.mv;}}
+  fo.minX=Math.max(fo.minX,Math.min(70,fo.x));fo.maxX=Math.min(fo.maxX,Math.max(L.w-100,fo.x)); // у самого старта и у торта огоньки не ходят
+  {const D=Math.max(0,fo.maxX-fo.minX),dx=Math.max(0,Math.min(D,fo.x-fo.minX));fo.u0=fo.p>1.5?2*D-dx:dx}return fo;});ITEMS=[];let n=0;
  const hi=[];[.22,.5,.78].forEach(f=>{let bi=-1,bd=1e9;L.pl.forEach((a,i)=>{if(hi.includes(i))return;const d=Math.abs(a[0]+a[2]/2-L.w*f);if(d<bd){bd=d;bi=i}});if(bi>=0)hi.push(bi)});hearts=[];
  L.pl.forEach((a,i)=>{const y=P[i][1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else{const q=[L.sw[n++%3],a[0]+a[2]/2-4,y];q.pl=[a[0],a[2]];ITEMS.push(q)}});
  let ng=0;L.G.forEach(a=>{for(let b=a[0]+30;b<a[0]+a[1]-20;b+=70)if(!FLM.some(f=>Math.abs(f.x-b)<26))ng++});
@@ -333,7 +335,7 @@ function fin(){tot+=score;CNT[lv]=items.length;const last=lv>=LV.length-1;setSt(
  $('wt').textContent=last?'Все уровни пройдены!':'Уровень '+(lv+1)+' пройден!';
  $('wh').textContent=last?'Нажми, чтобы сыграть ещё раз':'Нажми, чтобы идти дальше';show('win');beep(660,.3)}
 
-const fx=f=>Math.max(f.minX||0,Math.min(f.maxX||9999,f.x+Math.sin(t/(L.fd||25)+f.p)*L.mv));
+const fx=f=>{if(!L.mv)return f.x;const lo=f.minX,D=f.maxX-f.minX;if(D<=2)return lo;const v=L.mv/(L.fd||25)*.64,u=(((t*v+f.u0)%(2*D))+2*D)%(2*D);return lo+(u<=D?u:2*D-u)}; // огонёк ходит по всему отрезку от края до края
 function fY(a){let y=surf(a);P.forEach(q=>{if(a>=q[0]&&a<=q[0]+q[2]&&q[1]>GY)y=q[1];});return y??GY;}
 function hh(x){let h=0;for(const q of HL)if(x>=q[0]&&x<=q[1]){const t=(x-q[0])/(q[1]-q[0]);h+=q[2]*(.5-.5*Math.cos(2*Math.PI*t))}return h}
 function surf(x){for(const a of L.G)if(x>=a[0]&&x<a[0]+a[1])return GY-Math.round(hh(x));return null}
