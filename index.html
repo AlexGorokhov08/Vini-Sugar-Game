@@ -208,9 +208,35 @@ const LV=[
 
 const MOON_G=.3,MOON_AIR=.62; // последний уровень: чем меньше MOON_G, тем «тягучее» прыжок; MOON_AIR — скорость по горизонтали в воздухе
 let jp=false,jb=0,paused=false;
+const FLAME_CAP=100; // самый длинный маршрут огонька по земле, где долго нет ямы (≈ две подвесные платформы); у ямы огонёк всё равно доходит до края
 let MEL=[],cy=0,camT=0;const MELT_T=72; // сколько кадров стоять на кубике до таяния (60 кадров = 1 с), было 36 // тающие кубики, вертикальная камера (cy - сдвиг мира вниз, т.е. камера поднялась)
 let st='splash',lv=0,L,P,FLM,ITEMS,hearts,MP=[],HL=[],p,cam=0,items,score,tot,lives,t=0,pts=[],bn=0,gameFrames=0,totalHurts=0;
 const K={},CNT=[];
+// Маршруты огоньков на обычных уровнях.
+// Короткий участок (до FLAME_SHORT): один огонёк ходит от края до края, несколько делят участок поровну (каждый свою часть, крайние доходят до краёв).
+// Длинный участок без ям: короткий маршрут (FLAME_CAP): у ямы он прижат к её краю, иначе вокруг точки появления; у старта и у торта огоньки не ходят.
+const FLAME_SHORT=210;
+function buildFlameRoutes(){
+ const list=(L.fl||[]).map(f=>typeof f==='number'?{x:f,p:0}:{x:f[0],p:f[1]}),groups=new Map();
+ for(const fo of list){
+  const g=L.G.find(g=>fo.x>=g[0]&&fo.x<=g[0]+g[1]);let key=null,a,b,kind;
+  if(g){key=g;a=g[0];b=g[0]+g[1]-10;kind='g'}
+  else{const q=P.find(q=>fo.x>=q[0]&&fo.x<=q[0]+q[2]&&q[1]>GY);if(q){key=q;a=q[0];b=q[0]+q[2]-10;kind='p'}else{fo.minX=fo.x-L.mv;fo.maxX=fo.x+L.mv;continue}}
+  fo.a0=a;fo.b0=b;fo.a=Math.max(a,Math.min(70,fo.x));fo.b=Math.min(b,Math.max(L.w-100,fo.x));fo.kind=kind;fo.seg=key;
+  if(!groups.has(key))groups.set(key,[]);groups.get(key).push(fo)}
+ for(const [key,arr] of groups){
+  arr.sort((u,v)=>u.x-v.x);const a=arr[0].a,b=arr[0].b,R=b-a;
+  if(R<=FLAME_SHORT||arr[0].kind==='p'){arr.forEach((fo,i)=>{fo.minX=a+R*i/arr.length;fo.maxX=a+R*(i+1)/arr.length})}
+  else{
+   const g=key,lp=g[0]>0&&L.G.some(h=>h!==g&&h[0]+h[1]<g[0]),rp=L.G.some(h=>h!==g&&h[0]>g[0]+g[1]),SN=FLAME_CAP*1.6;
+   for(const fo of arr){let lo=fo.a0,hi=fo.b0;
+    if(lp&&fo.x-lo<=SN&&(!rp||fo.x-lo<=hi-fo.x))hi=lo+FLAME_CAP;
+    else if(rp&&hi-fo.x<=SN)lo=hi-FLAME_CAP;
+    else{const s0=Math.max(lo,Math.min(hi-FLAME_CAP,fo.x-FLAME_CAP/2));lo=s0;hi=s0+FLAME_CAP}
+    const len=hi-lo;if(lo<fo.a){lo=fo.a;hi=Math.min(fo.b,lo+len)}if(hi>fo.b){hi=fo.b;lo=Math.max(fo.a,hi-len)} // у старта и торта окно сдвигается, а не сжимается
+    fo.minX=lo;fo.maxX=hi}}}
+ for(const fo of list){const D=Math.max(0,fo.maxX-fo.minX),dx=Math.max(0,Math.min(D,fo.x-fo.minX));fo.u0=fo.p>1.5?2*D-dx:dx}
+ return list}
 // Вертикальный уровень: платформы с абсолютной высотой, пружины, тающие кубики, огоньки на платформах
 function buildV(retry){
  P=L.pl.map(a=>[a[0],a[3],a[2]]);P.push([L.ptop[0],L.top,L.ptop[1]]);MP=[];HL=[];MEL=[];
@@ -233,9 +259,7 @@ function build(retry){L=LV[lv];MEL=[];if(L.vert){buildV(retry);return}P=L.pl.map
   const clr=(xa,wa,ya)=>{let m=1e9;for(let x=Math.floor(xa);x<=xa+wa;x+=2)if(onG(x))m=Math.min(m,surf(x)-ya);return m};
   P.forEach(q=>{if(q.mv||q[1]>=GY)return;const c=clr(q[0],q[2],q[1]);if(c<14)q[1]-=Math.ceil(18-c)});
   MP.forEach(q=>{let c=1e9;for(let ph=-1;ph<=1.001;ph+=.25)c=Math.min(c,clr(q.x0+q.ax*ph,q[2],q.y0+q.ay*ph));if(c<6){const d=Math.ceil(6-c);q.y0-=d;q[1]=q.y0}})}
- FLM=(L.fl||[]).map(f=>{let fo=typeof f==='number'?{x:f,p:0}:{x:f[0],p:f[1]};let gSeg=L.G.find(g=>fo.x>=g[0]&&fo.x<=g[0]+g[1]);if(gSeg){fo.minX=gSeg[0];fo.maxX=gSeg[0]+gSeg[1]-10;}else{let pSeg=P.find(q=>fo.x>=q[0]&&fo.x<=q[0]+q[2]&&q[1]>GY);if(pSeg){fo.minX=pSeg[0];fo.maxX=pSeg[0]+pSeg[2]-10;}else{fo.minX=fo.x-L.mv;fo.maxX=fo.x+L.mv;}}
-  fo.minX=Math.max(fo.minX,Math.min(70,fo.x));fo.maxX=Math.min(fo.maxX,Math.max(L.w-100,fo.x)); // у самого старта и у торта огоньки не ходят
-  {const D=Math.max(0,fo.maxX-fo.minX),dx=Math.max(0,Math.min(D,fo.x-fo.minX));fo.u0=fo.p>1.5?2*D-dx:dx}return fo;});ITEMS=[];let n=0;
+ FLM=buildFlameRoutes();ITEMS=[];let n=0;
  const hi=[];[.22,.5,.78].forEach(f=>{let bi=-1,bd=1e9;L.pl.forEach((a,i)=>{if(hi.includes(i))return;const d=Math.abs(a[0]+a[2]/2-L.w*f);if(d<bd){bd=d;bi=i}});if(bi>=0)hi.push(bi)});hearts=[];
  L.pl.forEach((a,i)=>{const y=P[i][1]-12;if(hi.includes(i))hearts.push({x:a[0]+a[2]/2-3,y,on:1});else{const q=[L.sw[n++%3],a[0]+a[2]/2-4,y];q.pl=[a[0],a[2]];ITEMS.push(q)}});
  let ng=0;L.G.forEach(a=>{for(let b=a[0]+30;b<a[0]+a[1]-20;b+=70)if(!FLM.some(f=>Math.abs(f.x-b)<26))ng++});
